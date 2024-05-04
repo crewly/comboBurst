@@ -58,7 +58,34 @@ class $modify(PlayLayer) {
 		}
 	}
 
+	void loadSprites() {
+		const auto runningScene = CCDirector::get()->getRunningScene();
+		auto adjustedScale = Mod::get()->getSettingValue<double>("popup-size");
+		CCSize winSize = CCDirector::get()->getWinSize();
+		int i = 1;
+		while (true) {
+			auto charname = fmt::format("character{}", i);
+			auto filename = fmt::format("crewly.comboburst/cb_character{}_{}.png", Mod::get()->getSettingValue<int64_t>("sprite-pack"), i);
+			auto character = CCSprite::create(filename.c_str());
+			if (!character) {
+				break;
+			}
+			character->setID(charname.c_str());
 
+			// Scale character to fit screen
+			float scaleRatio = (winSize.height / character->getContentSize().height) * adjustedScale;
+			character->setScaleX(scaleRatio);
+			character->setScaleY(scaleRatio);
+
+			runningScene->addChild(character, 100);
+
+			// Set character opacity to 0
+			character->setOpacity(0);
+			i++;
+		}
+	}
+
+	// Classical GD
 	void updateProgressbar() {
 		PlayLayer::updateProgressbar();
 
@@ -66,12 +93,16 @@ class $modify(PlayLayer) {
 		if (!(Mod::get()->getSettingValue<bool>("popup-enable"))) {
 			return;
 		}
+		// Check if practice mode is enabled and the setting is disabled
+		else if (PlayLayer::get()->m_isPracticeMode && !(Mod::get()->getSettingValue<bool>("popup-practice"))) {
+			return;
+		}
 
-#ifdef GEODE_IS_IOS
+	#ifdef GEODE_IS_IOS
 		int percent = static_cast<int>(PlayLayer::getCurrentPercent());
-#else
+	#else
 		int percent = PlayLayer::getCurrentPercentInt();
-#endif
+	#endif
 
 		const auto runningScene = CCDirector::get()->getRunningScene();
 
@@ -84,29 +115,7 @@ class $modify(PlayLayer) {
 		}
 		// Create characters if they don't exist
 		else {
-			auto adjustedScale = Mod::get()->getSettingValue<double>("popup-size");
-			CCSize winSize = CCDirector::get()->getWinSize();
-			int i = 1;
-			while (true) {
-				auto charname = fmt::format("character{}", i);
-				auto filename = fmt::format("crewly.comboburst/cb_character{}_{}.png", Mod::get()->getSettingValue<int64_t>("sprite-pack"), i);
-				auto character = CCSprite::create(filename.c_str());
-				if (!character) {
-					break;
-				}
-				character->setID(charname.c_str());
-
-				// Scale character to fit screen
-				float scaleRatio = (winSize.height / character->getContentSize().height) * adjustedScale;
-				character->setScaleX(scaleRatio);
-				character->setScaleY(scaleRatio);
-
-				runningScene->addChild(character, 100);
-
-				// Set character opacity to 0
-				character->setOpacity(0);
-				i++;
-			}
+			loadSprites();
 		}
 	}
 

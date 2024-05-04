@@ -53,6 +53,12 @@
 			"default": 0.55,
 			"min": 0.2,
 			"max": 1
-		}
+		},
+		"popup-practice":  {
+      "name": "Show in Practice Mode",
+      "description": "Enable or disable the combo burst animations in practice mode",
+      "type": "bool",
+      "default": false
+    }
 	}
 }
