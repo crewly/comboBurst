@@ -27,13 +27,19 @@
 			"description": "The sprite pack to use for the pop-up animations. Check mod desc for list of sprites.",
 			"type": "int",
 			"default": 1,
-			"min": 1,
+			"min": 0,
 			"max": 2,
 			"control": {
 				"slider": false,
 				"slide-step": 5
 			}
 
+		},
+		"custom-pack": {
+			"name": "Use custom sprite pack",
+			"description": "Enable or disable the use of a custom sprite pack.",
+			"type": "bool",
+			"default": false
 		},
 		"popup-percent": {
 			"name": "Appear every %",
