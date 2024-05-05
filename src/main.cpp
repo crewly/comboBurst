@@ -6,14 +6,17 @@ using namespace geode::prelude;
 
 #include <Geode/modify/PlayLayer.hpp>
 
-class $modify(PlayLayer) {
+// Global Variables
+int loadedCharacters = 0; // Number of characters loaded
+int lastPercent = 0; // Last percent to prevent multiple bursts at the same percent
 
+class $modify(PlayLayer) {
 	bool anyActionRunning() {
 		const auto runningScene = CCDirector::get()->getRunningScene();
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i <= loadedCharacters; i++) {
 			// Check if character exists and an action is running
-			if (runningScene->getChildByID(fmt::format("character{}", i))) {
-				if (runningScene->getChildByID(fmt::format("character{}", i))->numberOfRunningActions() > 0) {
+			if (runningScene->getChildByID(fmt::format("cb_character{}", i))) {
+				if (runningScene->getChildByID(fmt::format("cb_character{}", i))->numberOfRunningActions() > 0) {
 					return true;
 				}
 			}
@@ -25,8 +28,8 @@ class $modify(PlayLayer) {
 		const auto runningScene = CCDirector::get()->getRunningScene();
 
 		// Randomly select a character to burst
-		int characterID = (rand() % 3)+1;
-		auto character = runningScene->getChildByID(fmt::format("character{}", characterID));
+		int characterID = (rand() % loadedCharacters)+1;
+		auto character = runningScene->getChildByID(fmt::format("cb_character{}", characterID));
 
 		// If character exists and no action is running
 		if (character && !this->anyActionRunning()) {
@@ -58,16 +61,18 @@ class $modify(PlayLayer) {
 		}
 	}
 
+	// Load characters
 	void loadSprites() {
 		const auto runningScene = CCDirector::get()->getRunningScene();
 		auto adjustedScale = Mod::get()->getSettingValue<double>("popup-size");
 		CCSize winSize = CCDirector::get()->getWinSize();
 		int i = 1;
 		while (true) {
-			auto charname = fmt::format("character{}", i);
+			auto charname = fmt::format("cb_character{}", i);
 			auto filename = fmt::format("crewly.comboburst/cb_character{}_{}.png", Mod::get()->getSettingValue<int64_t>("sprite-pack"), i);
 			auto character = CCSprite::create(filename.c_str());
 			if (!character) {
+				i -= 1;
 				break;
 			}
 			character->setID(charname.c_str());
@@ -83,6 +88,16 @@ class $modify(PlayLayer) {
 			character->setOpacity(0);
 			i++;
 		}
+		loadedCharacters = i;
+		
+	}
+
+	int getPercent() {
+		#ifdef GEODE_IS_IOS
+			return static_cast<int>(PlayLayer::getCurrentPercent());
+		#else
+			return PlayLayer::getCurrentPercentInt();
+		#endif
 	}
 
 	// Classical GD
@@ -98,25 +113,24 @@ class $modify(PlayLayer) {
 			return;
 		}
 
-	#ifdef GEODE_IS_IOS
-		int percent = static_cast<int>(PlayLayer::getCurrentPercent());
-	#else
-		int percent = PlayLayer::getCurrentPercentInt();
-	#endif
-
+		auto percent = this->getPercent();
 		const auto runningScene = CCDirector::get()->getRunningScene();
 
 		// Check if characters are loaded
-		if (runningScene->getChildByID("character1")) {
-			auto popupPercent = Mod::get()->getSettingValue<int64_t>("popup-percent");
-			if (percent > 0 && percent < 100 && percent % popupPercent == 0) {
-				characterBurst();
+		if (runningScene->getChildByID("cb_character1")) {
+			auto delta = percent - lastPercent;
+			if (delta == Mod::get()->getSettingValue<int64_t>("popup-percent") && percent <= 100) {
+				lastPercent = percent;
+				this->characterBurst();
 			}
 		}
 		// Create characters if they don't exist
 		else {
-			loadSprites();
+			this->loadSprites();
 		}
 	}
-
+	void resetLevel() {
+		PlayLayer::resetLevel();
+		lastPercent = this->getPercent();
+	}
 };

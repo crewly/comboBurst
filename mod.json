@@ -6,6 +6,7 @@
 	"name": "Combo Burst",
 	"developer": "crewly",
 	"description": "cute anime girls pop up as you play the level!",
+	"repository": "https://github.com/crewly/comboBurst",
 	"resources": {
 		"sprites": [
 			"resources/*.png"
@@ -23,7 +24,7 @@
 		},
 		"sprite-pack": {
 			"name": "Sprite Pack",
-			"description": "The sprite pack to use for the combo burst. Check mod desc for list of sprites.",
+			"description": "The sprite pack to use for the pop-up animations. Check mod desc for list of sprites.",
 			"type": "int",
 			"default": 1,
 			"min": 1,
@@ -36,14 +37,14 @@
 		},
 		"popup-percent": {
 			"name": "Appear every %",
-			"description": "The percentage of the combo that the combo burst will appear at",
+			"description": "The percentage difference required for a popup animation.",
 			"type": "int",
 			"default": 30,
 			"min": 5,
 			"max": 100,
 			"control": {
 				"slider": true,
-				"slide-step": 5
+				"slide-step": 1
 			}
 		},
 		"popup-size": {
@@ -54,11 +55,11 @@
 			"min": 0.2,
 			"max": 1
 		},
-		"popup-practice":  {
-      "name": "Show in Practice Mode",
-      "description": "Enable or disable the combo burst animations in practice mode",
-      "type": "bool",
-      "default": false
-    }
+		"popup-practice": {
+			"name": "Show in Practice Mode",
+			"description": "Enable or disable the combo burst animations in practice mode",
+			"type": "bool",
+			"default": false
+		}
 	}
 }
