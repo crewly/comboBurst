@@ -9,9 +9,9 @@ The mods save folder is located in `Settings -> Open Folder`
 
 Each character must have two files:
 1. `cb_char1.png` - The sprite that will be displayed.
-2. `cb_char1.wav` - The sound that will be played. (optional; but recommended)
-(Supported Audio Files: .ogg, .wav, .mp3, .m4a, .flic)
-(.ogg audio files are highly recommended for the best audio quality)
+2. `cb_char1.wav` - The sound that will be played. (optional; but recommended)  
+(Supported Audio Files: .ogg, .wav, .mp3, .m4a, .flic)  
+(.ogg audio files are highly recommended for the best audio quality)  
 
 All sprites with a running number starting from 1 will be loaded.
 (Example: `cb_char1.png`, `cb_char2.png`, `cb_char3.png`, etc.)

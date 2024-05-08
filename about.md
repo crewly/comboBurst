@@ -8,9 +8,12 @@ Art and SFX belong to their respective owners.
 # Sprite Packs
 
 You can change the characters popping up by editing the settings:
-0. Custom Sprite Pack
-1. Anime Pack
-2. Meme Pack
+
+[1] Anime Pack  
+
+[2] Meme Pack  
+
+[0] Custom Sprite Pack (see below)
 
 More packs coming soon!
 
