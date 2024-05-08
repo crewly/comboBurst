@@ -12,7 +12,11 @@
 			"resources/*.png"
 		],
 		"files": [
-			"resources/*.wav"
+			"resources/*.wav",
+			"resources/*.ogg",
+			"resources/*.mp3",
+			"resources/*.flic",
+			"resources/*.m4a"
 		]
 	},
 	"settings": {
@@ -33,13 +37,6 @@
 				"slider": false,
 				"slide-step": 5
 			}
-
-		},
-		"custom-pack": {
-			"name": "Use custom sprite pack",
-			"description": "Enable or disable the use of a custom sprite pack.",
-			"type": "bool",
-			"default": false
 		},
 		"popup-percent": {
 			"name": "Appear every %",
@@ -61,9 +58,15 @@
 			"min": 0.2,
 			"max": 1
 		},
+		"popup-platformer": {
+			"name": "Show in Platformer",
+			"description": "Show combo burst animations after every checkpoint in platformer mode",
+			"type": "bool",
+			"default": true
+		},
 		"popup-practice": {
 			"name": "Show in Practice Mode",
-			"description": "Enable or disable the combo burst animations in practice mode",
+			"description": "Show combo burst animations in practice mode",
 			"type": "bool",
 			"default": false
 		}
