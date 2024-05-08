@@ -8,16 +8,17 @@ Art and SFX belong to their respective owners.
 # Sprite Packs
 
 You can change the characters popping up by editing the settings:
+0. Custom Sprite Pack
 1. Anime Pack
 2. Meme Pack
 
 More packs coming soon!
 
 ## Custom Sprites
-If you want to add your own sprites, create a folder in the mod's save folder named "sprites" and add your sprites there.
+If you want to add your own sprites, create a folder in the mod's save folder named "custom-sprite" and add your sprites there.
 Each character must have two files:
-1. `cb_char1_1.png` - The sprite that will be displayed.
-2. `cb_char1_1.wav` - The sound that will be played. (.wav, .ogg, mp3, etc.)
+1. `cb_char1.png` - The sprite that will be displayed.
+2. `cb_char1.wav` - The sound that will be played. (.wav, .ogg, mp3, etc.)
 
 All sprites with a running number starting from 1 will be loaded.
 (Example: `cb_char1.png`, `cb_char2.png`, `cb_char3.png`, etc.)
