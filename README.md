@@ -8,8 +8,8 @@ If you want to add your own sprites, create a folder in the mod's save folder na
 The mods save folder is located in `Settings -> Open Folder`
 
 Each character must have two files:
-1. `cb_char1_1.png` - The sprite that will be displayed.
-2. `cb_char1_1.wav` - The sound that will be played. (optional; but recommended)
+1. `cb_char1.png` - The sprite that will be displayed.
+2. `cb_char1.wav` - The sound that will be played. (optional; but recommended)
 (Supported Audio Files: .ogg, .wav, .mp3, .m4a, .flic)
 (.ogg audio files are highly recommended for the best audio quality)
 
