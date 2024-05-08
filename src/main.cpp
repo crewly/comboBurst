@@ -209,7 +209,8 @@ class $modify(PlayLayer) {
 		return true;
 	}
 
-	// On checkpoint activate
+	// Platformer GD
+	// Burst for every activated checkpoint
 	void checkpointActivated(CheckpointGameObject* p0) {
 		PlayLayer::checkpointActivated(p0);
 		// Check if platformer is enabled and settings are enabled
