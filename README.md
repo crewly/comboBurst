@@ -16,8 +16,8 @@ Each character must have two files:
 All sprites with a running number starting from 1 will be loaded.
 (Example: `cb_char1.png`, `cb_char2.png`, `cb_char3.png`, etc.)
 
-A game restart is not needed for the custom sprite pack to be effective.
-Note that the more sprites you add, the longer the level may have to load.
+A game restart is not needed for the custom sprite pack to be effective.  
+Note that the more sprites you add, the longer the level may have to load.  
 
 You may find a sprite pack example under ./resources/custom-sprite/
 

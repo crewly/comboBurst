@@ -1,11 +1,11 @@
 {
-	"geode": "2.0.0-beta.25",
+	"geode": "2.0.0-beta.26",
 	"gd": "2.204",
-	"version": "v1.0.0-beta.1",
+	"version": "v1.0.0-beta.2",
 	"id": "crewly.comboburst",
 	"name": "Combo Burst",
 	"developer": "crewly",
-	"description": "cute anime girls pop up as you play the level!",
+	"description": "Have characters cheer you on as you play the level",
 	"repository": "https://github.com/crewly/comboBurst",
 	"resources": {
 		"sprites": [

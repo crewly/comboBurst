@@ -70,6 +70,7 @@ class $modify(PlayLayer) {
 			std::string sfx = m_fields->m_spriteAudio[characterID-1];
 				
 			FMODAudioEngine::sharedEngine()->playEffect(sfx);
+
 			CCSize winSize = CCDirector::get()->getWinSize();
 
 			// Set starting position to the left side of the screen
