@@ -1,6 +1,6 @@
 # v1.0.1
 
- * ANDROID SUPPORT!!!
+ * Android support!
  * Added volume slider for SFX
  * You can select between two algorithms for character selection (randomized or sequential)
  * Added tags for indexer
