@@ -1,6 +1,6 @@
 # v1.0.1
 
- * Android support!
+ * Support across all platforms
  * Added volume slider for SFX (only in mod settings)
  * You can select between two algorithms for character selection (randomized or sequential)
  * Added tags for indexer
