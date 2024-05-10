@@ -1,12 +1,16 @@
 {
 	"geode": "2.0.0-beta.26",
-	"gd": "2.204",
+	"gd": {
+		"win": "2.204",
+		"android": "2.205"
+	},
 	"version": "v1.0.0-beta.2",
 	"id": "crewly.comboburst",
 	"name": "Combo Burst",
 	"developer": "crewly",
 	"description": "Have characters cheer you on as you play the level",
 	"repository": "https://github.com/crewly/comboBurst",
+	"tags": ["Customization", "Cosmetic", "Gameplay"],
 	"resources": {
 		"sprites": [
 			"resources/*.png"
@@ -45,8 +49,7 @@
 			"min": 5,
 			"max": 100,
 			"control": {
-				"slider": true,
-				"slide-step": 1
+				"slider": true
 			}
 		},
 		"popup-size": {
@@ -63,6 +66,12 @@
 			"type": "bool",
 			"default": true
 		},
+		"popup-random": {
+			"name": "Use randomizer",
+			"description": "Characters will be randomly picked. If disabled, characters will be shown sequentially.",
+			"type": "bool",
+			"default": true
+		},
 		"popup-platformer": {
 			"name": "Show in Platformer",
 			"description": "Show combo burst animations after every checkpoint in platformer mode",
@@ -75,5 +84,12 @@
 			"type": "bool",
 			"default": false
 		}
-	}
+	},
+	"dependencies": [
+		{
+			"id": "geode.node-ids",
+			"importance": "required",
+			"version": ">=1.8.0"
+		}
+	]
 }

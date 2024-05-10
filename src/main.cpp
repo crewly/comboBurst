@@ -25,7 +25,9 @@ class $modify(PlayLayer) {
 	struct Fields {
 		int m_loadedCharacters = 0; // Number of characters loaded
 		int m_lastPercent = 0; // Last percent to prevent multiple bursts at the same percent
-		bool m_isPlatformer = true; // Check if level is a platformer
+		int m_prevChar = 0; // ID of the previously bursted character
+		bool m_runningAnimation = false; // Whether or not a character animation is active
+		bool m_isPlatformer = true; // Whether or not platformer is enabled
 		std::string m_defaultAudio = "";
 		std::filesystem::path m_spriteDir; // Directory of the Sprites
 		std::vector<std::string> m_spriteAudio; // List of audio files
@@ -34,18 +36,6 @@ class $modify(PlayLayer) {
 	// Check if player is trying to use custom sprites (Sprite pack ID 0)
 	bool usingCustomSprites() {
 		return (Mod::get()->getSettingValue<int64_t>("sprite-pack") == 0);
-	}
-
-	bool anyActionRunning() {
-		for (int i = 0; i <= m_fields->m_loadedCharacters; i++) {
-			// Check if character exists and an action is running
-			if (this->getChildByID(fmt::format("cb_char{}", i))) {
-				if (this->getChildByID(fmt::format("cb_char{}", i))->numberOfRunningActions() > 0) {
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 
 	std::string getSoundFile(std::string name) {
@@ -61,20 +51,41 @@ class $modify(PlayLayer) {
 		return "";
 	}
 
-	void charBurst() {
-		// Randomly select a character to burst
-		if (m_fields->m_loadedCharacters == 0) return;
-		int characterID = (rand() % m_fields->m_loadedCharacters)+1;
-		auto character = this->getChildByID(fmt::format("cb_char{}", characterID));
+	int selectCharacterID() {
+		int characterID;
+		// Use random algorithm
+		if (Mod::get()->getSettingValue<bool>("popup-random")) {
+			do {
+				characterID = (rand() % m_fields->m_loadedCharacters)+1;
+			} while (m_fields->m_prevChar == characterID && m_fields->m_loadedCharacters != 1);
+		} 
+		// Sequentially show characters
+		else {
+			characterID = (m_fields->m_prevChar%m_fields->m_loadedCharacters)+1;
+		}
+		m_fields->m_prevChar = characterID;
+		return characterID;
+	}
 
-		// If no action is running
-		if (!anyActionRunning()) {
+	void charBurst() {
+		// Return if no characteers are loaded
+		if (m_fields->m_loadedCharacters == 0) return;
+
+		// Randomly select a character to burst, that has not been previously played before.
+		int characterID = selectCharacterID();
+
+		// If no animation is running
+		if (m_fields->m_runningAnimation != true) {
+			m_fields->m_runningAnimation = true;
+			auto character = this->getChildByID(fmt::format("cb_char{}", characterID));
+
+			// Audio Engine
 			std::string sfx = m_fields->m_spriteAudio[characterID-1];
 			if (sfx.empty()) sfx = m_fields->m_defaultAudio;
 			FMODAudioEngine::sharedEngine()->playEffect(sfx);
-			CCSize winSize = CCDirector::get()->getWinSize();
 
 			// Set starting position to the left side of the screen
+			CCSize winSize = CCDirector::get()->getWinSize();
 			character->setPosition({ 0, winSize.height / 2 });
 
 			// Move character to the right side of the screen while fading in
@@ -94,6 +105,7 @@ class $modify(PlayLayer) {
 
 			// Run the actions
 			character->runAction(actions);
+			m_fields->m_runningAnimation = false;
 		}
 	}
 
