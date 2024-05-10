@@ -34,8 +34,7 @@
 			"min": 0,
 			"max": 2,
 			"control": {
-				"slider": false,
-				"slide-step": 5
+				"slider": false
 			}
 		},
 		"popup-percent": {
@@ -51,12 +50,18 @@
 			}
 		},
 		"popup-size": {
-			"name": "Size (%)",
-			"description": "The size of the sprites (in %)",
+			"name": "Size",
+			"description": "The size of the sprites",
 			"type": "float",
 			"default": 0.55,
 			"min": 0.2,
 			"max": 1
+		},
+		"popup-defaultsfx": {
+			"name": "Use default SFX if needed",
+			"description": "Play use sound effect if a custom sprite doesn't have their own sound effect.",
+			"type": "bool",
+			"default": true
 		},
 		"popup-platformer": {
 			"name": "Show in Platformer",

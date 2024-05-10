@@ -17,6 +17,7 @@ $on_mod(Loaded) {
 	}
 }
 
+std::string defaultAudio = "cb_default.ogg"_spr;
 std::mt19937 rng;
 
 class $modify(PlayLayer) {
@@ -25,6 +26,7 @@ class $modify(PlayLayer) {
 		int m_loadedCharacters = 0; // Number of characters loaded
 		int m_lastPercent = 0; // Last percent to prevent multiple bursts at the same percent
 		bool m_isPlatformer = true; // Check if level is a platformer
+		std::string m_defaultAudio = "";
 		std::filesystem::path m_spriteDir; // Directory of the Sprites
 		std::vector<std::string> m_spriteAudio; // List of audio files
 	};
@@ -68,9 +70,8 @@ class $modify(PlayLayer) {
 		// If no action is running
 		if (!anyActionRunning()) {
 			std::string sfx = m_fields->m_spriteAudio[characterID-1];
-				
+			if (sfx.empty()) sfx = m_fields->m_defaultAudio;
 			FMODAudioEngine::sharedEngine()->playEffect(sfx);
-
 			CCSize winSize = CCDirector::get()->getWinSize();
 
 			// Set starting position to the left side of the screen
@@ -103,13 +104,22 @@ class $modify(PlayLayer) {
 
 		// Load characters until a character is not found
 		int i = 1;
+
+		// Set default audio for combo bursts
+		if (usingCustomSprites()) { // Use custom default sound effect if provided
+			m_fields->m_defaultAudio = getSoundFile("comboburst-0");
+		}							// Otherwise use the mod's default sound effect
+		if (m_fields->m_defaultAudio.empty() && Mod::get()->getSettingValue<bool>("popup-defaultsfx")) {
+			m_fields->m_defaultAudio = defaultAudio;
+		}
+
 		while (true) {
 			auto charname = fmt::format("cb_char{}", i);
 			auto filename = fmt::format("cb_char{}_{}.png", Mod::get()->getSettingValue<int64_t>("sprite-pack"), i);
 			auto character = CCSprite::create(Mod::get()->expandSpriteName(filename.c_str()));
 
 			if (usingCustomSprites()) {
-				filename = fmt::format("cb_char{}.png", i);
+				filename = fmt::format("comboburst-{}.png", i);
 				character = CCSprite::create((Mod::get()->getSaveDir() / "custom-sprite" / filename).string().c_str());
 				// There won't be two CCSprite instances created because the initial variable should lead to a nullptr (i think)
 			}
@@ -133,7 +143,7 @@ class $modify(PlayLayer) {
 
 			// Push audio files to the audio list
 			if (usingCustomSprites()) {
-				m_fields->m_spriteAudio.push_back(getSoundFile((fmt::format("cb_char{}", i).c_str())));
+				m_fields->m_spriteAudio.push_back(getSoundFile((fmt::format("comboburst-{}", i).c_str())));
 			}
 			else {
 				m_fields->m_spriteAudio.push_back(Mod::get()->expandSpriteName(fmt::format("cb_char{}_{}.ogg", Mod::get()->getSettingValue<int64_t>("sprite-pack"), i).c_str()));
