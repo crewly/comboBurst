@@ -80,9 +80,27 @@ class $modify(PlayLayer) {
 			auto character = this->getChildByID(fmt::format("cb_char{}", characterID));
 
 			// Audio Engine
+
 			std::string sfx = m_fields->m_spriteAudio[characterID-1];
 			if (sfx.empty()) sfx = m_fields->m_defaultAudio;
-			FMODAudioEngine::sharedEngine()->playEffect(sfx);
+
+			auto fae = FMODAudioEngine::sharedEngine();
+			if (Mod::get()->getSettingValue<bool>("popup-sfxslider")) fae->playEffect(sfx);
+
+			// Use volume settings from mod options
+			else {
+				auto system = fae->m_system;
+				FMOD::Channel* channel;
+				FMOD::Sound* sound;
+				
+                auto sfxPath = Mod::get()->getResourcesDir().parent_path() / sfx;
+				if (usingCustomSprites() && sfx != defaultAudio)
+					system->createSound(sfx.c_str(), FMOD_DEFAULT, nullptr, &sound);
+				else
+					system->createSound(sfxPath.string().c_str(), FMOD_DEFAULT, nullptr, &sound);
+				system->playSound(sound, nullptr, false, &channel);
+				channel->setVolume((Mod::get()->getSettingValue<int64_t>("popup-volume")/100.f));
+			}
 
 			// Set starting position to the left side of the screen
 			CCSize winSize = CCDirector::get()->getWinSize();
@@ -168,11 +186,7 @@ class $modify(PlayLayer) {
 
 	// Get player's current percent
 	int getPercent() {
-		#ifdef GEODE_IS_IOS
-			return static_cast<int>(PlayLayer::getCurrentPercent());
-		#else
-			return PlayLayer::getCurrentPercentInt();
-		#endif
+		return PlayLayer::getCurrentPercentInt();
 	}
 
 	// Classical GD

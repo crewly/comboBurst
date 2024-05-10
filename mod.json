@@ -4,11 +4,11 @@
 		"win": "2.204",
 		"android": "2.205"
 	},
-	"version": "v1.0.0-beta.2",
+	"version": "v1.0.1",
 	"id": "crewly.comboburst",
 	"name": "Combo Burst",
 	"developer": "crewly",
-	"description": "Have characters cheer you on as you play the level",
+	"description": "Have characters cheer you on as you play the level!",
 	"repository": "https://github.com/crewly/comboBurst",
 	"tags": ["Customization", "Cosmetic", "Gameplay"],
 	"resources": {
@@ -29,6 +29,17 @@
 			"description": "Enable or disable the combo burst animations",
 			"type": "bool",
 			"default": true
+		},
+		"popup-volume": {
+			"name": "SFX Volume (%)",
+			"description": "Volume of the Sprite SFX",
+			"type": "int",
+			"default": 30,
+			"min": 0,
+			"max": 100,
+			"control": {
+				"slider": true
+			}
 		},
 		"sprite-pack": {
 			"name": "Sprite Pack",
@@ -62,9 +73,15 @@
 		},
 		"popup-defaultsfx": {
 			"name": "Use default SFX if needed",
-			"description": "Play use sound effect if a custom sprite doesn't have their own sound effect.",
+			"description": "Use sound effect if a custom sprite doesn't have their own sound effect.",
 			"type": "bool",
 			"default": true
+		},
+		"popup-sfxslider": {
+			"name": "Use GD SFX slider",
+			"description": "Use Geometry Dash's SFX volume slider for the mod. Overwrites the mod's volume setting.",
+			"type": "bool",
+			"default": false
 		},
 		"popup-random": {
 			"name": "Use randomizer",
