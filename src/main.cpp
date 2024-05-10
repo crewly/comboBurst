@@ -26,7 +26,6 @@ class $modify(PlayLayer) {
 		int m_loadedCharacters = 0; // Number of characters loaded
 		int m_lastPercent = 0; // Last percent to prevent multiple bursts at the same percent
 		int m_prevChar = 0; // ID of the previously bursted character
-		bool m_runningAnimation = false; // Whether or not a character animation is active
 		bool m_isPlatformer = true; // Whether or not platformer is enabled
 		std::string m_defaultAudio = "";
 		std::filesystem::path m_spriteDir; // Directory of the Sprites
@@ -36,6 +35,18 @@ class $modify(PlayLayer) {
 	// Check if player is trying to use custom sprites (Sprite pack ID 0)
 	bool usingCustomSprites() {
 		return (Mod::get()->getSettingValue<int64_t>("sprite-pack") == 0);
+	}
+
+	bool anyActionRunning() {
+		for (int i = 0; i <= m_fields->m_loadedCharacters; i++) {
+			// Check if character exists and an action is running
+			if (this->getChildByID(fmt::format("cb_char{}", i))) {
+				if (this->getChildByID(fmt::format("cb_char{}", i))->numberOfRunningActions() > 0) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	std::string getSoundFile(std::string name) {
@@ -75,8 +86,7 @@ class $modify(PlayLayer) {
 		int characterID = selectCharacterID();
 
 		// If no animation is running
-		if (m_fields->m_runningAnimation != true) {
-			m_fields->m_runningAnimation = true;
+		if (!anyActionRunning()) {
 			auto character = this->getChildByID(fmt::format("cb_char{}", characterID));
 
 			// Audio Engine
@@ -123,7 +133,6 @@ class $modify(PlayLayer) {
 
 			// Run the actions
 			character->runAction(actions);
-			m_fields->m_runningAnimation = false;
 		}
 	}
 
