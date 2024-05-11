@@ -1,6 +1,7 @@
 # v1.0.1
 
- * Android Support
+ * Full Android Support
+ * Partial MacOS Support (Platformer Checkpoints not working)
  * Added volume slider for SFX (only in mod settings)
  * You can select between two algorithms for character selection (randomized or sequential)
  * Added tags for indexer

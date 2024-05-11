@@ -2,7 +2,8 @@
 	"geode": "2.0.0-beta.26",
 	"gd": {
 		"win": "2.204",
-		"android": "2.205"
+		"android": "2.205",
+		"mac": "2.200"
 	},
 	"version": "v1.0.1",
 	"id": "crewly.comboburst",
@@ -91,13 +92,13 @@
 		},
 		"popup-platformer": {
 			"name": "Show in Platformer",
-			"description": "Show combo burst animations after every checkpoint in platformer mode",
+			"description": "Show combo burst animations after every checkpoint in platformer mode. (MacOS not supported)",
 			"type": "bool",
 			"default": true
 		},
 		"popup-practice": {
 			"name": "Show in Practice Mode",
-			"description": "Show combo burst animations in practice mode",
+			"description": "Show combo burst animations in practice mode.",
 			"type": "bool",
 			"default": false
 		}

@@ -8,19 +8,29 @@ using namespace geode::prelude;
 #include <Geode/modify/PlayLayer.hpp>
 #include <Geode/modify/GJGameLevel.hpp>
 
+// Find save directory
+std::filesystem::path getSpriteDir() {
+	auto ghcPath = (Mod::get()->getSaveDir() / "custom-sprite");
+	std::filesystem::path path = ghcPath.u8string();
+	return path;
+}
+
 // Create Custom Sprite directory if it doesn't exist
 $on_mod(Loaded) {
-	auto path = (Mod::get()->getSaveDir() / "custom-sprite");
-	auto pathString = path.string().c_str();
-	if (!std::filesystem::exists(pathString)) {
-		std::filesystem::create_directory(pathString);
+	auto path = getSpriteDir();
+	if (!std::filesystem::exists(path)) {
+		try {
+			std::filesystem::create_directory(path);
+		} catch (std::filesystem::filesystem_error& e) {
+			log::error("Failed to create custom sprite directory: {}", e.what());
+		}
 	}
 }
 
 std::string defaultAudio = "cb_default.ogg"_spr;
 std::mt19937 rng;
 
-class $modify(PlayLayer) {
+class $modify(MyPlayLayer, PlayLayer) {
 
 	struct Fields {
 		int m_loadedCharacters = 0; // Number of characters loaded
@@ -37,6 +47,7 @@ class $modify(PlayLayer) {
 		return (Mod::get()->getSettingValue<int64_t>("sprite-pack") == 0);
 	}
 
+	// Check if any action is running
 	bool anyActionRunning() {
 		for (int i = 0; i <= m_fields->m_loadedCharacters; i++) {
 			// Check if character exists and an action is running
@@ -49,13 +60,14 @@ class $modify(PlayLayer) {
 		return false;
 	}
 
+	// Get sound file (TODO: Add cyrillic support (which is impossible because of playEffect() not supporting cyrillic characters))
 	std::string getSoundFile(std::string name) {
 		std::vector<std::string> extensions = { ".ogg", ".wav", ".mp3", ".m4a", ".flic" };
 		for (auto& ext : extensions) {
 			auto file = fmt::format("{}{}", name, ext);
-			if (std::filesystem::exists((Mod::get()->getSaveDir() / "custom-sprite" / file).string().c_str())) {
-				auto path = (Mod::get()->getSaveDir() / "custom-sprite" / file).string().c_str();
-				return path;
+			if (std::filesystem::exists((getSpriteDir() / file))) {
+				auto path = (getSpriteDir() / file);
+				return path.string();
 			}
 		}
 		// No file found
@@ -87,10 +99,9 @@ class $modify(PlayLayer) {
 
 		// If no animation is running
 		if (!anyActionRunning()) {
-			auto character = this->getChildByID(fmt::format("cb_char{}", characterID));
+			auto character = this->getChildByID(Mod::get()->expandSpriteName(fmt::format("cb_char{}", characterID).c_str()));
 
 			// Audio Engine
-
 			std::string sfx = m_fields->m_spriteAudio[characterID-1];
 			if (sfx.empty()) sfx = m_fields->m_defaultAudio;
 
@@ -159,7 +170,7 @@ class $modify(PlayLayer) {
 
 			if (usingCustomSprites()) {
 				filename = fmt::format("comboburst-{}.png", i);
-				character = CCSprite::create((Mod::get()->getSaveDir() / "custom-sprite" / filename).string().c_str());
+				character = CCSprite::create((getSpriteDir() / filename).string().c_str());
 				// There won't be two CCSprite instances created because the initial variable should lead to a nullptr (i think)
 			}
 
@@ -168,7 +179,7 @@ class $modify(PlayLayer) {
 				break;
 			}
 
-			character->setID(charname.c_str());
+			character->setID(Mod::get()->expandSpriteName(charname.c_str()));
 
 			// Scale character to fit screen
 			float scaleRatio = (winSize.height / character->getContentSize().height) * adjustedScale;
@@ -195,7 +206,11 @@ class $modify(PlayLayer) {
 
 	// Get player's current percent
 	int getPercent() {
-		return PlayLayer::getCurrentPercentInt();
+		#ifndef GEODE_IS_MACOS
+			return PlayLayer::getCurrentPercentInt();
+		#else
+			return static_cast<int>(PlayLayer::getCurrentPercent());
+		#endif
 	}
 
 	// Classical GD
@@ -244,9 +259,7 @@ class $modify(PlayLayer) {
 			m_fields->m_isPlatformer = level->isPlatformer();
 
 			if (usingCustomSprites()) {
-				auto path = (Mod::get()->getSaveDir() / "custom-sprite");
-				auto pathString = path.string().c_str();
-				m_fields->m_spriteDir = pathString;
+				m_fields->m_spriteDir = getSpriteDir();
 			}
 			loadSprites();
 			rng.seed(time(NULL));
@@ -255,6 +268,7 @@ class $modify(PlayLayer) {
 		return true;
 	}
 
+	#ifndef GEODE_IS_MACOS
 	// Platformer GD
 	// Burst for every activated checkpoint
 	void checkpointActivated(CheckpointGameObject* p0) {
@@ -262,4 +276,5 @@ class $modify(PlayLayer) {
 		// Check if platformer is enabled and settings are enabled
 		if (m_fields->m_isPlatformer) if (Mod::get()->getSettingValue<bool>("popup-platformer")) charBurst();
 	}
+	#endif
 };
