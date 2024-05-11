@@ -51,8 +51,8 @@ class $modify(PlayLayer) {
 	bool anyActionRunning() {
 		for (int i = 0; i <= m_fields->m_loadedCharacters; i++) {
 			// Check if character exists and an action is running
-			if (this->getChildByID(fmt::format("cb_char{}", i))) {
-				if (this->getChildByID(fmt::format("cb_char{}", i))->numberOfRunningActions() > 0) {
+			if (auto theChild = this->getChildByID(Mod::get()->expandSpriteName(fmt::format("cb_char{}", i).c_str()))) {
+				if (theChild->numberOfRunningActions() > 0) {
 					return true;
 				}
 			}
