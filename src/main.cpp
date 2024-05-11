@@ -30,7 +30,7 @@ $on_mod(Loaded) {
 std::string defaultAudio = "cb_default.ogg"_spr;
 std::mt19937 rng;
 
-class $modify(MyPlayLayer, PlayLayer) {
+class $modify(PlayLayer) {
 
 	struct Fields {
 		int m_loadedCharacters = 0; // Number of characters loaded
