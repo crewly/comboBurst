@@ -1,7 +1,9 @@
-# v1.0.2-beta.1
+# v1.1.0-beta.1
 
- * 2.206 Support
- * Minor code changes
+ * 2.206 port
+ * Added character container
+ * Improved code readability
+ * Renamed assets
 
 # v1.0.1
 
