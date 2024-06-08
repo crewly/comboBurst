@@ -151,16 +151,23 @@ class $modify(PlayLayer) {
 				FMOD::Sound* sound;
 				
                 auto sfxPath = Mod::get()->getResourcesDir().parent_path() / sfx;
-				if (usingCustomSprites() && sfx != defaultAudio)
+
+				// Create sound object
+				// Use custom sprites if enabled
+				if (usingCustomSprites() && sfx != defaultAudio) {
 					system->createSound(sfx.c_str(), 
 										FMOD_DEFAULT, 
 										nullptr,
 										&sound);
-				else
+				// Otherwise use the default SFX
+				} else {
 					system->createSound(sfxPath.string().c_str(),
 										FMOD_DEFAULT,
 										nullptr,
 										&sound);
+				}
+
+				// Play sound
 				system->playSound(sound, nullptr, false, &channel);
 				channel->setVolume(
 					Mod::get()->getSettingValue<int64_t>("popup-volume")/100.f
@@ -169,7 +176,6 @@ class $modify(PlayLayer) {
 
 			// Set starting position to the left side of the screen
 			character->setPositionX(0.0f);
-
 			auto characterY = character->getPositionY();
 
 			// Move character to the right side of the screen while fading in
