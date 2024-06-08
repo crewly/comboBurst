@@ -51,8 +51,13 @@ class $modify(PlayLayer) {
 	bool anyActionRunning() {
 		for (int i = 0; i <= m_fields->m_loadedCharacters; i++) {
 			// Check if character exists and an action is running
-			if (auto theChild = this->getChildByID(Mod::get()->expandSpriteName(fmt::format("cb_char{}", i).c_str()))) {
-				if (theChild->numberOfRunningActions() > 0) {
+			auto child = this->getChildByID(
+				Mod::get()->expandSpriteName(
+					fmt::format("cb_char{}", i).c_str()
+				)
+			);
+			if (child) {
+				if (child->numberOfRunningActions() > 0) {
 					return true;
 				}
 			}
@@ -60,7 +65,8 @@ class $modify(PlayLayer) {
 		return false;
 	}
 
-	// Get sound file (TODO: Add cyrillic support (which is impossible because of playEffect() not supporting cyrillic characters))
+	// Get sound file
+	// (TODO: Add cyrillic support)
 	std::string getSoundFile(std::string name) {
 		std::vector<std::string> extensions = { ".ogg", ".wav", ".mp3", ".m4a", ".flic" };
 		for (auto& ext : extensions) {
@@ -124,8 +130,7 @@ class $modify(PlayLayer) {
 			}
 
 			// Set starting position to the left side of the screen
-			CCSize winSize = CCDirector::get()->getWinSize();
-			character->setPosition({ 0, winSize.height / 2 });
+			character->setPositionX(0.0f);
 
 			// Move character to the right side of the screen while fading in
 			auto moveIn = CCMoveTo::create(1, { 75, character->getPositionY() });
@@ -162,7 +167,6 @@ class $modify(PlayLayer) {
 		if (m_fields->m_defaultAudio.empty() && Mod::get()->getSettingValue<bool>("popup-defaultsfx")) {
 			m_fields->m_defaultAudio = defaultAudio;
 		}
-
 		while (true) {
 			auto charname = fmt::format("cb_char{}", i);
 			auto filename = fmt::format("cb_char{}_{}.png", Mod::get()->getSettingValue<int64_t>("sprite-pack"), i);
@@ -187,6 +191,7 @@ class $modify(PlayLayer) {
 			character->setScaleY(scaleRatio);
 
 			this->addChild(character, 100);
+			character->setPosition({ 0, winSize.height / 2 });
 
 			// Set character opacity to 0
 			character->setOpacity(0);

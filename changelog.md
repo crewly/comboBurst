@@ -1,3 +1,8 @@
+# v1.0.2-beta.1
+
+ * 2.206 Support
+ * Minor code changes
+
 # v1.0.1
 
  * Full Android Support
