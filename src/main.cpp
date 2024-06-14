@@ -69,9 +69,7 @@ class $modify(PlayLayer) {
 		for (int i = 0; i <= m_fields->m_loadedCharacters; i++) {
 			// Check if character exists and an action is running
 			auto child = m_fields->m_container->getChildByID(
-				Mod::get()->expandSpriteName(
-					fmt::format("char-{}", i).c_str()
-				)
+				fmt::format("char-{}"_spr, i).c_str()
 			);
 			if (child) {
 				if (child->numberOfRunningActions() > 0) {
@@ -128,9 +126,7 @@ class $modify(PlayLayer) {
 		// If no animation is running
 		if (!anyActionRunning()) {
 			auto character = m_fields->m_container->getChildByID(
-				Mod::get()->expandSpriteName(
-					fmt::format("char-{}", characterID).c_str()
-				)
+				fmt::format("char-{}"_spr, characterID)
 			);
 
 			// Audio Engine
@@ -235,7 +231,7 @@ class $modify(PlayLayer) {
 			} else {
 				fileName = fmt::format("comboburst-{}_{}.png", spritePack, i);
 				character = CCSprite::create(
-					Mod::get()->expandSpriteName(fileName.c_str())
+					fmt::format("{}"_spr, fileName).c_str()
 				);
 			}
 
@@ -244,7 +240,9 @@ class $modify(PlayLayer) {
 				break;
 			}
 
-			character->setID(Mod::get()->expandSpriteName(charName.c_str()));
+			character->setID(
+				fmt::format("{}"_spr, charName)
+			);
 
 			// Scale character to fit screen
 			auto popupSize = Mod::get()->getSettingValue<double>("popup-size");
@@ -269,9 +267,7 @@ class $modify(PlayLayer) {
 			}
 			else {
 				m_fields->m_spriteAudio.push_back(
-					Mod::get()->expandSpriteName(
-						fmt::format("comboburst-{}_{}.ogg", spritePack, i).c_str()
-					)
+					fmt::format("comboburst-{}_{}.ogg"_spr, spritePack, i)
 				);
 			}
 			i++;
