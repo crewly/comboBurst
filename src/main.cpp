@@ -155,6 +155,7 @@ class $modify(PlayLayer) {
 										FMOD_DEFAULT, 
 										nullptr,
 										&sound);
+
 				// Otherwise use the default SFX
 				} else {
 					system->createSound(sfxPath.string().c_str(),
@@ -174,15 +175,20 @@ class $modify(PlayLayer) {
 			character->setPositionX(0.0f);
 			auto characterY = character->getPositionY();
 
+			// Get player's opacity setting
+			auto opacity = Mod::get()->getSettingValue<int64_t>("popup-opacity");
+
 			// Move character to the right side of the screen while fading in
 			auto moveIn = CCMoveTo::create(1, { 75, characterY });
 			auto moveInEase = CCEaseBackOut::create(moveIn);
-			auto fadeInEase = CCEaseExponentialOut::create(CCFadeIn::create(1));
+			auto fadeInEase = CCEaseExponentialOut::create(
+				CCFadeTo::create(1, opacity)
+			);
 
 			// Move character back to the left side of the screen while fading out
 			auto moveOut = CCMoveTo::create(1, { 65, characterY });
 			auto moveOutEase = CCEaseBackIn::create(moveOut);
-			auto fadeOut = CCFadeOut::create(0.5);
+			auto fadeOut = CCFadeTo::create(0.5, 0);
 
 			// Spawn the move and fade actions
 			auto spawn = CCSpawn::createWithTwoActions(moveInEase, fadeInEase);
@@ -227,8 +233,9 @@ class $modify(PlayLayer) {
 				character = CCSprite::create(
 					(getSpriteDir() / fileName).string().c_str()
 				);
+			} 
 			// Load sprites from the sprite pack
-			} else {
+			else {
 				fileName = fmt::format("comboburst-{}_{}.png", spritePack, i);
 				character = CCSprite::create(
 					fmt::format("{}"_spr, fileName).c_str()
@@ -260,11 +267,13 @@ class $modify(PlayLayer) {
 			character->setOpacity(0);
 
 			// Push audio files to the audio list
+			// Load custom audio if provided
 			if (usingCustomSprites()) {
 				m_fields->m_spriteAudio.push_back(
 					getSoundFile((fmt::format("comboburst-{}", i).c_str()))
 				);
 			}
+			// Otherwise use the default audio
 			else {
 				m_fields->m_spriteAudio.push_back(
 					fmt::format("comboburst-{}_{}.ogg"_spr, spritePack, i)
