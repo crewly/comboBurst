@@ -1,8 +1,10 @@
-# v1.1.0-alpha.2
+# v1.1.0
 
  * 2.206 port
- * Added character container
+ * Added opacity setting
+ * Characters are stored in a node container
  * Improved code readability
+ * Removed nodeids dependency (may come back if needed)
  * Renamed assets
 
 # v1.0.1
