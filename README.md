@@ -2,14 +2,14 @@
 
 Combo Burst from osu! now implemented in Geometry Dash!  
 
-# Custom sprite packs
+# Custom Sprite Packs
 
 If you want to add your own sprites, create a folder in the mod's save folder named "custom-sprite" and add your sprites there.
 The mods save folder is located in `Settings -> Open Folder`  
 
 On Android, the sprite folder is in `Geode/save/geode/mods/crewly.comboburst/custom-sprite/`  
 
-## Filename syntax
+## Filename Syntax
 
 Each character needs to have two files:
 1. `comboburst-1.png` - The sprite that will be displayed. (required)
@@ -19,6 +19,8 @@ Each character needs to have two files:
 
 All sprites with a running number starting from 1 will be loaded.  
 (Example: `comboburst-1.png`, `comboburst-2.png`, `comboburst-3.png`, etc.)  
+
+## Additional Sprite Pack Info
 
 Any sprites that do not have their own audio file will use the mod's default sprite sound effect.  
 Any audio file named `comboburst-0` will replace the mod's default sprite sound effect.
