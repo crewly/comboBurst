@@ -101,7 +101,6 @@
 			"name": "Show in Platformer",
 			"description": "Show combo burst animations after every checkpoint in platformer mode. (MacOS not supported)",
 			"type": "bool",
-			"platforms": ["windows", "android64", "android32"],
 			"default": true
 		},
 		"popup-practice": {
