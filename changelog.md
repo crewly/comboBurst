@@ -2,6 +2,7 @@
 
  * 2.206 port
  * Added opacity setting
+ * Fixed crashing with Texture Loader
  * Characters are stored in a node container
  * Improved code readability
  * Removed nodeids dependency (may come back if needed)
