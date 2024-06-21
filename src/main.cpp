@@ -359,6 +359,6 @@ class $modify(PlayLayer) {
 			Mod::get()->getSettingValue<bool>("popup-platformer")) {
 			charBurst();
 		}
-	#endif
 	}
+	#endif
 };
