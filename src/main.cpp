@@ -204,7 +204,7 @@ class $modify(PlayLayer) {
 	void loadSprites() {
 
 		// Load characters until a character is not found
-		int i = 1;
+		int i = 0;
 
 		// Set default audio for combo bursts
 		if (usingCustomSprites()) { // Use custom default SFX if provided
@@ -223,28 +223,39 @@ class $modify(PlayLayer) {
 		// Load characters until a character is not found
 		int spritePack = Mod::get()->getSettingValue<int64_t>("sprite-pack");
 		while (true) {
-			std::string charName = fmt::format("char-{}", i);
+			std::string charName = fmt::format("char-{}", i+1);
 			std::string fileName;
 			CCSprite* character;
-
 			// Load custom sprites if enabled
 			if (usingCustomSprites()) {
-				fileName = fmt::format("comboburst-{}.png", i);
+				fileName = fmt::format("comboburst-{}.png", i+1);
+
+				// Break if file is not found
+				if (!std::filesystem::exists(
+					(getSpriteDir() / fileName)
+				)) {
+					break;
+				}
+
 				character = CCSprite::create(
 					(getSpriteDir() / fileName).string().c_str()
 				);
 			} 
+			
 			// Load sprites from the sprite pack
 			else {
-				fileName = fmt::format("comboburst-{}_{}.png", spritePack, i);
+				fileName = fmt::format("comboburst-{}_{}.png", spritePack, i+1);
+
+				// Break if file is not found
+				if (!std::filesystem::exists(
+					Mod::get()->getResourcesDir() / fileName
+				)) {
+					break;
+				}
+
 				character = CCSprite::create(
 					fmt::format("{}"_spr, fileName).c_str()
 				);
-			}
-
-			if (!character) {
-				i -= 1;
-				break;
 			}
 
 			character->setID(
@@ -270,13 +281,13 @@ class $modify(PlayLayer) {
 			// Load custom audio if provided
 			if (usingCustomSprites()) {
 				m_fields->m_spriteAudio.push_back(
-					getSoundFile((fmt::format("comboburst-{}", i).c_str()))
+					getSoundFile((fmt::format("comboburst-{}", i+1).c_str()))
 				);
 			}
 			// Otherwise use the default audio
 			else {
 				m_fields->m_spriteAudio.push_back(
-					fmt::format("comboburst-{}_{}.ogg"_spr, spritePack, i)
+					fmt::format("comboburst-{}_{}.ogg"_spr, spritePack, i+1)
 				);
 			}
 			i++;
