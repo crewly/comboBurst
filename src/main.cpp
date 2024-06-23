@@ -330,11 +330,6 @@ class ComboBurst : public CCNode {
 			return;
 		}
 
-		// Check if player is in platformer
-		if (m_isPlatformer) {
-			return;
-		}
-
 		// Check if practice mode is enabled and the setting is disabled
 		else if (layer->m_isPracticeMode) {
 			if (!(Mod::get()->getSettingValue<bool>("popup-practice"))) {
@@ -376,7 +371,7 @@ class $modify(PlayLayer) {
 
 	void updateProgressbar() {
 		PlayLayer::updateProgressbar();
-		if (!m_fields->m_comboBurst) {
+		if (!m_fields->m_comboBurst || m_fields->m_isPlatformer) {
 			return;
 		}
 		m_fields->m_comboBurst->update(this);
