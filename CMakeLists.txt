@@ -8,7 +8,8 @@ project(comboBurst VERSION 2.0.0)
 
 # Set up the mod binary
 add_library(${PROJECT_NAME} SHARED
-    src/main.cpp
+    src/PlayLayer.cpp
+    # src/settings.cpp
     # Add your cpp files here
  )
 

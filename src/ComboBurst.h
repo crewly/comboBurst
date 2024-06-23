@@ -1,10 +1,11 @@
+#pragma once
 #include <Geode/Geode.hpp>
 #include <random>
 #include <string>
 
 using namespace geode::prelude;
 
-#include <Geode/modify/PlayLayer.hpp>
+// Prerequisites //
 
 // Find save directory
 std::filesystem::path getSpriteDir() {
@@ -27,54 +28,50 @@ $on_mod(Loaded) {
 }
 
 std::string defaultAudio = "comboburst_default.ogg"_spr;
-std::mt19937 rng;
 
 // ComboBurst class
 class ComboBurst : public CCNode {
-	public:
-		// Number of characters loaded
-		int m_loadedCharacters = 0;
-
-		// Last percent to prevent multiple bursts at the same percent
-		int m_lastPercent = 0; 
-
-		// ID of the previously bursted character
-		int m_prevChar = 0; 
-
-		// If action is playing
-		bool m_actionRunning = false;
-
-		// Default audio for combo bursts
-		std::string m_defaultAudio = "";
-
-		// Directory of the Sprites
-		std::filesystem::path m_spriteDir; 
-		
-		// List of audio files
-		std::vector<std::string> m_spriteAudio;
-
-	static ComboBurst* create(PlayLayer* layer) {
-		auto* ret = new (std::nothrow) ComboBurst;
-		if (ret && ret->init(layer)) {
-			ret->autorelease();
-			return ret;
-		} else {
-			delete ret;
-			return nullptr;
-		}
-	}
-
+protected:
 	bool init(PlayLayer* layer) {
 		if (!CCNode::init()) return false;
 
 		this->setID("characters"_spr);
 		layer->addChild(this, 100);
 
+		// Set RNG seed
+		rng.seed(std::random_device()());
+
 		// Load sprites
 		loadSprites();
 
 		return true;
 	}
+
+public:
+
+	// RNG-seed
+	std::mt19937 rng;
+
+	// Number of characters loaded
+	int m_loadedCharacters = 0;
+
+	// Last percent to prevent multiple bursts at the same percent
+	int m_lastPercent = 0; 
+
+	// ID of the previously bursted character
+	int m_prevChar = 0; 
+
+	// If action is playing
+	bool m_actionRunning = false;
+
+	// Default audio for combo bursts
+	std::string m_defaultAudio = "";
+
+	// Directory of the Sprites
+	std::filesystem::path m_spriteDir; 
+	
+	// List of audio files
+	std::vector<std::string> m_spriteAudio;
 
 	// Get player's percentage when they reset.
 	int getPercent(PlayLayer* layer) {
@@ -112,11 +109,13 @@ class ComboBurst : public CCNode {
 				m_prevChar == characterID &&
 				m_loadedCharacters != 1
 			);
-		} 
+		}
+
 		// Sequentially show characters
 		else {
 			characterID = (m_prevChar%m_loadedCharacters)+1;
 		}
+
 		m_prevChar = characterID;
 		return characterID;
 	}
@@ -322,7 +321,7 @@ class ComboBurst : public CCNode {
 		}
 	}
 
-	// 
+	// Update function; checks for the percent and calls charBurst
 	void update(PlayLayer* layer) {
 
 		// Check if a character is loaded
@@ -347,54 +346,16 @@ class ComboBurst : public CCNode {
 		}
 	}
 
-};
-
-// Modify PlayLayer
-class $modify(PlayLayer) {
-	struct Fields {
-		// ComboBurst object
-		ComboBurst* m_comboBurst = nullptr;
-
-		// Check if platformer is enabled
-		int m_isPlatformer = 0;
-	};
-
-	bool init(GJGameLevel* level, bool useReplay, bool setupObjects) {
-		if (!PlayLayer::init(level, useReplay, setupObjects)) {
-			return false;
-		}
-		m_fields->m_isPlatformer = level->isPlatformer();
-		// Create ComboBurst object
-		m_fields->m_comboBurst = ComboBurst::create(this);
-		return true;
-	}
-
-	void updateProgressbar() {
-		PlayLayer::updateProgressbar();
-		if (!m_fields->m_comboBurst || m_fields->m_isPlatformer) {
-			return;
-		}
-		m_fields->m_comboBurst->update(this);
-	}
-	void resetLevel() {
-		PlayLayer::resetLevel();
-		if (!m_fields->m_comboBurst) {
-			return;
-		}
-		m_fields->m_comboBurst->m_lastPercent = this->getCurrentPercentInt();
-	}
-
-	// No MacOS Support :(
-	#ifndef GEODE_IS_MACOS
-	// Checkpoint activated (for platformer)
-	void checkpointActivated(CheckpointGameObject* p0) {
-		PlayLayer::checkpointActivated(p0);
-		// Check if platformer is enabled and settings are enabled
-		if (m_fields->m_isPlatformer &&
-			Mod::get()->getSettingValue<bool>("popup-platformer")) {
-			m_fields->m_comboBurst->charBurst();
+	// Create ComboBurst object
+	static ComboBurst* create(PlayLayer* layer) {
+		auto* ret = new (std::nothrow) ComboBurst;
+		if (ret && ret->init(layer)) {
+			ret->autorelease();
+			return ret;
+		} else {
+			delete ret;
+			return nullptr;
 		}
 	}
-	#endif
 
 };
