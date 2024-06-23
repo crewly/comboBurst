@@ -41,9 +41,6 @@ class ComboBurst : public CCNode {
 		// ID of the previously bursted character
 		int m_prevChar = 0; 
 
-		// Whether or not platformer is enabled
-		bool m_isPlatformer = false; 
-
 		// If action is playing
 		bool m_actionRunning = false;
 
@@ -124,6 +121,7 @@ class ComboBurst : public CCNode {
 		return characterID;
 	}
 
+	// Reset actionRunning flag
 	void actionEnd() {
 		m_actionRunning = false;
 	}
@@ -199,14 +197,14 @@ class ComboBurst : public CCNode {
 			// Character animations
 			// Move character to the right side of the screen while fading in
 			auto moveIn = CCMoveTo::create(1, { 75, characterY });
-			auto moveInEase = CCEaseExponentialOut::create(moveIn);
+			auto moveInEase = CCEaseBackOut::create(moveIn);
 			auto fadeInEase = CCEaseExponentialOut::create(
 				CCFadeTo::create(1, opacity)
 			);
 
 			// Move character back to the left side of the screen while fading out
 			auto moveOut = CCMoveTo::create(1, { 65, characterY });
-			auto moveOutEase = CCEaseExponentialIn::create(moveOut);
+			auto moveOutEase = CCEaseBackIn::create(moveOut);
 			auto fadeOut = CCFadeTo::create(0.5, 0);
 
 			// Spawn the move and fade actions
