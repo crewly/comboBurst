@@ -212,7 +212,9 @@ class ComboBurst : public CCNode {
 			auto despawn = CCSpawn::create(moveOutEase, fadeOut, nullptr);
 
 			// Add a callback to reset the actionRunning flag
-			auto reset = CCCallFunc::create(this, callfunc_selector(ComboBurst::actionEnd));
+			auto reset = CCCallFunc::create(
+				this, callfunc_selector(ComboBurst::actionEnd)
+			);
 
 			auto actions = CCSequence::create(spawn, despawn, reset, nullptr);
 
