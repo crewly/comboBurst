@@ -1,4 +1,3 @@
-
 #include <Geode/Geode.hpp>
 #include <random>
 #include <string>
@@ -6,7 +5,6 @@
 using namespace geode::prelude;
 
 #include <Geode/modify/PlayLayer.hpp>
-#include <Geode/modify/GJGameLevel.hpp>
 
 // Find save directory
 std::filesystem::path getSpriteDir() {
@@ -31,9 +29,9 @@ $on_mod(Loaded) {
 std::string defaultAudio = "comboburst_default.ogg"_spr;
 std::mt19937 rng;
 
-class $modify(PlayLayer) {
-
-	struct Fields {
+// ComboBurst class
+class ComboBurst : public CCNode {
+	public:
 		// Number of characters loaded
 		int m_loadedCharacters = 0;
 
@@ -44,10 +42,10 @@ class $modify(PlayLayer) {
 		int m_prevChar = 0; 
 
 		// Whether or not platformer is enabled
-		bool m_isPlatformer = true; 
+		bool m_isPlatformer = false; 
 
-		// Container for the characters
-		CCNode* m_container = nullptr; 
+		// If action is playing
+		bool m_actionRunning = false;
 
 		// Default audio for combo bursts
 		std::string m_defaultAudio = "";
@@ -56,28 +54,39 @@ class $modify(PlayLayer) {
 		std::filesystem::path m_spriteDir; 
 		
 		// List of audio files
-		std::vector<std::string> m_spriteAudio; 
-	};
+		std::vector<std::string> m_spriteAudio;
+
+	static ComboBurst* create(PlayLayer* layer) {
+		auto* ret = new (std::nothrow) ComboBurst;
+		if (ret && ret->init(layer)) {
+			ret->autorelease();
+			return ret;
+		} else {
+			delete ret;
+			return nullptr;
+		}
+	}
+
+	bool init(PlayLayer* layer) {
+		if (!CCNode::init()) return false;
+
+		this->setID("characters"_spr);
+		layer->addChild(this, 100);
+
+		// Load sprites
+		loadSprites();
+
+		return true;
+	}
+
+	// Get player's percentage when they reset.
+	int getPercent(PlayLayer* layer) {
+		return layer->getCurrentPercentInt();
+	}
 
 	// Check if player is trying to use custom sprites (Sprite pack ID 0)
 	bool usingCustomSprites() {
 		return (Mod::get()->getSettingValue<int64_t>("sprite-pack") == 0);
-	}
-
-	// Check if any action is running
-	bool anyActionRunning() {
-		for (int i = 0; i <= m_fields->m_loadedCharacters; i++) {
-			// Check if character exists and an action is running
-			auto child = m_fields->m_container->getChildByID(
-				fmt::format("char-{}"_spr, i).c_str()
-			);
-			if (child) {
-				if (child->numberOfRunningActions() > 0) {
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 
 	// Get sound file
@@ -101,40 +110,49 @@ class $modify(PlayLayer) {
 		// Use random algorithm
 		if (Mod::get()->getSettingValue<bool>("popup-random")) {
 			do {
-				characterID = (rand() % m_fields->m_loadedCharacters)+1;
+				characterID = (rand() % m_loadedCharacters)+1;
 			} while (
-				m_fields->m_prevChar == characterID &&
-				m_fields->m_loadedCharacters != 1
+				m_prevChar == characterID &&
+				m_loadedCharacters != 1
 			);
 		} 
 		// Sequentially show characters
 		else {
-			characterID = (m_fields->m_prevChar%m_fields->m_loadedCharacters)+1;
+			characterID = (m_prevChar%m_loadedCharacters)+1;
 		}
-		m_fields->m_prevChar = characterID;
+		m_prevChar = characterID;
 		return characterID;
+	}
+
+	void actionEnd() {
+		m_actionRunning = false;
 	}
 
 	void charBurst() {
 		// Return if no characteers are loaded
-		if (m_fields->m_loadedCharacters == 0) return;
+		if (m_loadedCharacters == 0) return;
 
 		// Randomly select a character to burst,
 		// that has not been previously played before.
 		int characterID = selectCharacterID();
 
 		// If no animation is running
-		if (!anyActionRunning()) {
-			auto character = m_fields->m_container->getChildByID(
+		if (!m_actionRunning) {
+			// Set actionRunning to true
+			m_actionRunning = true;
+
+			// Get character by ID
+			auto character = this->getChildByID(
 				fmt::format("char-{}"_spr, characterID)
 			);
 
 			// Audio Engine
-			std::string sfx = m_fields->m_spriteAudio[characterID-1];
+			std::string sfx = m_spriteAudio[characterID-1];
 			auto fae = FMODAudioEngine::sharedEngine();
 
+			// Use default audio if no custom audio is provided
 			if (sfx.empty()) {
-				sfx = m_fields->m_defaultAudio;
+				sfx = m_defaultAudio;
 			}
 
 			if (Mod::get()->getSettingValue<bool>("popup-sfxslider")) {
@@ -178,22 +196,27 @@ class $modify(PlayLayer) {
 			// Get player's opacity setting
 			auto opacity = Mod::get()->getSettingValue<int64_t>("popup-opacity");
 
+			// Character animations
 			// Move character to the right side of the screen while fading in
 			auto moveIn = CCMoveTo::create(1, { 75, characterY });
-			auto moveInEase = CCEaseBackOut::create(moveIn);
+			auto moveInEase = CCEaseExponentialOut::create(moveIn);
 			auto fadeInEase = CCEaseExponentialOut::create(
 				CCFadeTo::create(1, opacity)
 			);
 
 			// Move character back to the left side of the screen while fading out
 			auto moveOut = CCMoveTo::create(1, { 65, characterY });
-			auto moveOutEase = CCEaseBackIn::create(moveOut);
+			auto moveOutEase = CCEaseExponentialIn::create(moveOut);
 			auto fadeOut = CCFadeTo::create(0.5, 0);
 
 			// Spawn the move and fade actions
-			auto spawn = CCSpawn::createWithTwoActions(moveInEase, fadeInEase);
-			auto despawn = CCSpawn::createWithTwoActions(moveOutEase, fadeOut);
-			auto actions = CCSequence::create(spawn, despawn, nullptr);
+			auto spawn = CCSpawn::create(moveInEase, fadeInEase, nullptr);
+			auto despawn = CCSpawn::create(moveOutEase, fadeOut, nullptr);
+
+			// Add a callback to reset the actionRunning flag
+			auto reset = CCCallFunc::create(this, callfunc_selector(ComboBurst::actionEnd));
+
+			auto actions = CCSequence::create(spawn, despawn, reset, nullptr);
 
 			// Run the actions
 			character->runAction(actions);
@@ -208,20 +231,17 @@ class $modify(PlayLayer) {
 
 		// Set default audio for combo bursts
 		if (usingCustomSprites()) { // Use custom default SFX if provided
-			m_fields->m_defaultAudio = getSoundFile("comboburst-0");
+			m_defaultAudio = getSoundFile("comboburst-0");
 		}							// Otherwise use the default SFX
-		if (m_fields->m_defaultAudio.empty() && 
+		if (m_defaultAudio.empty() && 
 			Mod::get()->getSettingValue<bool>("popup-defaultsfx")) {
-			m_fields->m_defaultAudio = defaultAudio;
+			m_defaultAudio = defaultAudio;
 		}
-
-		// Create a container for the characters
-		m_fields->m_container = CCNode::create();
-		m_fields->m_container->setID("container"_spr);
-		this->addChild(m_fields->m_container, 100);
 
 		// Load characters until a character is not found
 		int spritePack = Mod::get()->getSettingValue<int64_t>("sprite-pack");
+		
+		// Load characters until a character is not found
 		while (true) {
 			std::string charName = fmt::format("char-{}", i+1);
 			std::string fileName;
@@ -271,7 +291,7 @@ class $modify(PlayLayer) {
 			character->setScaleX(scale);
 			character->setScaleY(scale);
 
-			m_fields->m_container->addChild(character, 100);
+			this->addChild(character, 100);
 			character->setPosition({ 0, winSize.height / 2 });
 
 			// Set character opacity to 0
@@ -280,96 +300,106 @@ class $modify(PlayLayer) {
 			// Push audio files to the audio list
 			// Load custom audio if provided
 			if (usingCustomSprites()) {
-				m_fields->m_spriteAudio.push_back(
+				m_spriteAudio.push_back(
 					getSoundFile((fmt::format("comboburst-{}", i+1).c_str()))
 				);
 			}
 			// Otherwise use the default audio
 			else {
-				m_fields->m_spriteAudio.push_back(
+				m_spriteAudio.push_back(
 					fmt::format("comboburst-{}_{}.ogg"_spr, spritePack, i+1)
 				);
 			}
 			i++;
 		}
-		m_fields->m_loadedCharacters = i;
-		log::info("Loaded {} characters", i);
+		m_loadedCharacters = i;
+
+		// Log the number of characters loaded
+		if (m_loadedCharacters == 0) {
+			log::warn("No characters found");
+		} else {
+			log::info("Loaded {} characters", m_loadedCharacters);
+		}
 	}
 
-	// Get player's current percent
-	int getPercent() {
-		#ifndef GEODE_IS_MACOS
-			return PlayLayer::getCurrentPercentInt();
-		#else
-			return static_cast<int>(PlayLayer::getCurrentPercent());
-		#endif
-	}
-
-	// Classical GD
-	void updateProgressbar() {
-		PlayLayer::updateProgressbar();
+	// 
+	void update(PlayLayer* layer) {
 
 		// Check if a character is loaded
-		if (m_fields->m_loadedCharacters <= 0) {
+		if (m_loadedCharacters <= 0) {
 			return;
 		}
 
 		// Check if player is in platformer
-		if (m_fields->m_isPlatformer) {
+		if (m_isPlatformer) {
 			return;
 		}
 
 		// Check if practice mode is enabled and the setting is disabled
-		else if (PlayLayer::get()->m_isPracticeMode) {
+		else if (layer->m_isPracticeMode) {
 			if (!(Mod::get()->getSettingValue<bool>("popup-practice"))) {
 				return;
 			}
 		}
 
+		auto percent = getPercent(layer);
 		// Check if percent is equal to the setting value
-		auto percent = getPercent();
-		auto delta = percent - m_fields->m_lastPercent;
+		auto delta = percent - m_lastPercent;
 		if (delta == Mod::get()->getSettingValue<int64_t>("popup-percent") &&
 			percent <= 100) {
-			m_fields->m_lastPercent = percent;
+			m_lastPercent = percent;
 			charBurst();
 		}
 	}
 
-	// Get player's percentage when they reset.
-	void resetLevel() {
-		PlayLayer::resetLevel();
-		m_fields->m_lastPercent = getPercent();
-	}
+};
 
-	// Setup
+// Modify PlayLayer
+class $modify(PlayLayer) {
+	struct Fields {
+		// ComboBurst object
+		ComboBurst* m_comboBurst = nullptr;
+
+		// Check if platformer is enabled
+		int m_isPlatformer = 0;
+	};
+
 	bool init(GJGameLevel* level, bool useReplay, bool setupObjects) {
-		if (!PlayLayer::init(level, useReplay, setupObjects)) return false;
-
-		// If mod is enabled
-		if (Mod::get()->getSettingValue<bool>("popup-enable")) {
-			// Check if platformer is disabled
-			m_fields->m_isPlatformer = level->isPlatformer();
-
-			if (usingCustomSprites()) {
-				m_fields->m_spriteDir = getSpriteDir();
-			}
-			loadSprites();
-			rng.seed(time(NULL));
+		if (!PlayLayer::init(level, useReplay, setupObjects)) {
+			return false;
 		}
+		m_fields->m_isPlatformer = level->isPlatformer();
+		// Create ComboBurst object
+		m_fields->m_comboBurst = ComboBurst::create(this);
 		return true;
 	}
 
+	void updateProgressbar() {
+		PlayLayer::updateProgressbar();
+		if (!m_fields->m_comboBurst) {
+			return;
+		}
+		m_fields->m_comboBurst->update(this);
+	}
+	void resetLevel() {
+		PlayLayer::resetLevel();
+		if (!m_fields->m_comboBurst) {
+			return;
+		}
+		m_fields->m_comboBurst->m_lastPercent = this->getCurrentPercentInt();
+	}
+
+	// No MacOS Support :(
 	#ifndef GEODE_IS_MACOS
-	// Platformer GD
-	// Burst for every activated checkpoint
+	// Checkpoint activated (for platformer)
 	void checkpointActivated(CheckpointGameObject* p0) {
 		PlayLayer::checkpointActivated(p0);
 		// Check if platformer is enabled and settings are enabled
 		if (m_fields->m_isPlatformer &&
 			Mod::get()->getSettingValue<bool>("popup-platformer")) {
-			charBurst();
+			m_fields->m_comboBurst->charBurst();
 		}
 	}
 	#endif
+
 };
