@@ -5,27 +5,23 @@ using namespace geode::prelude;
 
 #include <Geode/modify/PauseLayer.hpp>
 
-
 class $modify(MyPauseLayer, PauseLayer) {
 
 	// Pause SFX
 	void pause() {
 		if (!channel) return;
-		log::info("Paused");
 		channel->setPaused(true);
 	}
 
 	// Resume SFX
 	void resume() {
 		if (!channel) return;
-		log::info("Resumed");
 		channel->setPaused(false);
 	}
 
 	// Stop SFX
 	void stop() {
 		if (!channel) return;
-		log::info("Stopped");
 		channel->stop();
 	}
 
