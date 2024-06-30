@@ -10,7 +10,7 @@ class $modify(PlayLayer) {
 
 	// Fields
 	struct Fields {
-		// ComboBurst object
+		// ComboBurst instance
 		ComboBurst* m_comboBurst = nullptr;
 
 		// Check if platformer is enabled
@@ -22,15 +22,21 @@ class $modify(PlayLayer) {
 		if (!PlayLayer::init(level, useReplay, setupObjects)) {
 			return false;
 		}
+
+		// Set platformer status
 		m_fields->m_isPlatformer = level->isPlatformer();
-		// Create ComboBurst object
-		m_fields->m_comboBurst = ComboBurst::create(this);
+
+		// Create ComboBurst instance
+		if (Mod::get()->getSettingValue<bool>("popup-enable")) {
+			m_fields->m_comboBurst = ComboBurst::create(this);
+		}
 		return true;
 	}
 
 	// Update progress bar
 	void updateProgressbar() {
 		PlayLayer::updateProgressbar();
+
 		if (!m_fields->m_comboBurst || m_fields->m_isPlatformer) {
 			return;
 		}
@@ -52,13 +58,16 @@ class $modify(PlayLayer) {
 	// Checkpoint activated (for platformer)
 	void checkpointActivated(CheckpointGameObject* p0) {
 		PlayLayer::checkpointActivated(p0);
+		if (!m_fields->m_comboBurst) {
+			return;
+		}
+
 		// Check if platformer is enabled and settings are enabled
 		if (m_fields->m_isPlatformer &&
 			Mod::get()->getSettingValue<bool>("popup-platformer")) {
 			m_fields->m_comboBurst->charBurst();
 		}
 	}
-
 	#endif
 
 };
