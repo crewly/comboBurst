@@ -1,5 +1,5 @@
 {
-	"geode": "3.0.0",
+	"geode": "3.1.1",
 	"gd": {
 		"win": "2.206",
 		"android": "2.206"
@@ -10,7 +10,7 @@
 	"developer": "crewly",
 	"description": "Have characters cheer you on as you play the level!",
 	"repository": "https://github.com/crewly/comboBurst",
-	"tags": ["customization", "gameplay"],
+	"tags": ["customization", "gameplay", "joke"],
 	"resources": {
 		"sprites": [
 			"resources/*.png"
