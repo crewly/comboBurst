@@ -1,6 +1,9 @@
 # v2.0.0
 
  * Code rewrite
+ * SFX are paused in Pause Menu
+ * Added "Joke" tag
+ * TODO: Better Seettings menu
 
 # v1.1.0
 
