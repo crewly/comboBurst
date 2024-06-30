@@ -3,7 +3,7 @@
  * Code rewrite
  * SFX are paused in Pause Menu
  * Added "Joke" tag
- * TODO: Better Seettings menu
+ * TODO: Better Settings menu
 
 # v1.1.0
 
