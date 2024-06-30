@@ -8,7 +8,7 @@ using namespace geode::prelude;
 // Prerequisites //
 
 // Find save directory
-std::filesystem::path getSpriteDir() {
+inline std::filesystem::path getSpriteDir() {
 	auto ghcPath = (Mod::get()->getSaveDir() / "custom-sprite");
 	std::filesystem::path path = ghcPath.u8string();
 	return path;
@@ -27,7 +27,8 @@ $on_mod(Loaded) {
 	}
 }
 
-std::string defaultAudio = "comboburst_default.ogg"_spr;
+inline std::string defaultAudio = "comboburst_default.ogg"_spr;
+inline FMOD::Channel* channel;
 
 // ComboBurst class
 class ComboBurst : public CCNode {
@@ -43,6 +44,9 @@ protected:
 
 		// Load sprites
 		loadSprites();
+		if (m_loadedCharacters == 0) {
+			return false;
+		}
 
 		return true;
 	}
@@ -73,7 +77,19 @@ public:
 	// List of audio files
 	std::vector<std::string> m_spriteAudio;
 
-	// Get player's percentage when they reset.
+	// Create ComboBurst object
+	static ComboBurst* create(PlayLayer* layer) {
+		auto* ret = new (std::nothrow) ComboBurst;
+		if (ret && ret->init(layer)) {
+			ret->autorelease();
+			return ret;
+		} else {
+			delete ret;
+			return nullptr;
+		}
+	}
+
+	// Get player's percentage
 	int getPercent(PlayLayer* layer) {
 		return layer->getCurrentPercentInt();
 	}
@@ -152,13 +168,13 @@ public:
 				sfx = m_defaultAudio;
 			}
 
+			// Play sound effect in GD
 			if (Mod::get()->getSettingValue<bool>("popup-sfxslider")) {
 				fae->playEffect(sfx);
 			}
-			// Use volume settings from mod options
+			// Play sound effect using FMOD
 			else {
 				auto system = fae->m_system;
-				FMOD::Channel* channel;
 				FMOD::Sound* sound;
 				
                 auto sfxPath = Mod::get()->getResourcesDir().parent_path() / sfx;
@@ -186,6 +202,7 @@ public:
 				);
 			}
 
+			// Character animations //
 			// Set starting position to the left side of the screen
 			character->setPositionX(0.0f);
 			auto characterY = character->getPositionY();
@@ -193,7 +210,6 @@ public:
 			// Get player's opacity setting
 			auto opacity = Mod::get()->getSettingValue<int64_t>("popup-opacity");
 
-			// Character animations
 			// Move character to the right side of the screen while fading in
 			auto moveIn = CCMoveTo::create(1, { 75, characterY });
 			auto moveInEase = CCEaseBackOut::create(moveIn);
@@ -229,9 +245,11 @@ public:
 		int i = 0;
 
 		// Set default audio for combo bursts
-		if (usingCustomSprites()) { // Use custom default SFX if provided
+		// Use custom default SFX if provided
+		if (usingCustomSprites()) { 
 			m_defaultAudio = getSoundFile("comboburst-0");
-		}							// Otherwise use the default SFX
+		}
+		// Otherwise use the default SFX
 		if (m_defaultAudio.empty() && 
 			Mod::get()->getSettingValue<bool>("popup-defaultsfx")) {
 			m_defaultAudio = defaultAudio;
@@ -287,8 +305,7 @@ public:
 			auto characterSize = character->getContentSize();
 		
 			float scale = (winSize.height / characterSize.height) * popupSize;
-			character->setScaleX(scale);
-			character->setScaleY(scale);
+			character->setScale(scale);
 
 			this->addChild(character, 100);
 			character->setPosition({ 0, winSize.height / 2 });
@@ -321,7 +338,8 @@ public:
 		}
 	}
 
-	// Update function; checks for the percent and calls charBurst
+	// Update function; checks percentage delta and calls charBurst()
+	// GD Classic mode only
 	void update(PlayLayer* layer) {
 
 		// Check if a character is loaded
@@ -345,17 +363,4 @@ public:
 			charBurst();
 		}
 	}
-
-	// Create ComboBurst object
-	static ComboBurst* create(PlayLayer* layer) {
-		auto* ret = new (std::nothrow) ComboBurst;
-		if (ret && ret->init(layer)) {
-			ret->autorelease();
-			return ret;
-		} else {
-			delete ret;
-			return nullptr;
-		}
-	}
-
 };
