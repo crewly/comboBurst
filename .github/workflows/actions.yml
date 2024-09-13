@@ -35,6 +35,8 @@ jobs:
       - name: Build the mod
         uses: geode-sdk/build-geode-mod@main
         with:
+          bindings: hiimjustin000/bindings # make sure to comment this out later
+          bindings-ref: patch-6 # make sure to comment this out later
           combine: true
           target: ${{ matrix.config.target }}
 
