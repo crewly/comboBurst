@@ -223,8 +223,8 @@ public:
 			auto fadeOut = CCFadeTo::create(0.5, 0);
 
 			// Spawn the move and fade actions
-			auto spawn = CCSpawn::create(moveInEase, fadeInEase, nullptr);
-			auto despawn = CCSpawn::create(moveOutEase, fadeOut, nullptr);
+			auto spawn = CCSpawn::createWithTwoActions(moveInEase, fadeInEase);
+			auto despawn = CCSpawn::createWithTwoActions(moveOutEase, fadeOut);
 
 			// Add a callback to reset the actionRunning flag
 			auto reset = CCCallFunc::create(
