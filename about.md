@@ -7,15 +7,9 @@ Art and SFX belong to their respective owners.
 
 # Sprite Packs
 
-You can change the characters popping up by editing the settings:
+Available Spritepacks: Anime, Meme, Custom (see below)
 
-[1] Anime Pack  
-
-[2] Meme Pack  
-
-[0] Custom Sprite Pack (see below)
-
-More packs coming soon!
+More packs coming soon(?)
 
 ## Custom Sprites
 If you want to add your own sprites, create a folder in the mod's save folder named "custom-sprite" and add your sprites there.  
@@ -27,7 +21,7 @@ Each character must have two files:
 All sprites with a running number starting from 1 will be loaded.
 (Example: `comboburst-1.png`, `comboburst-2.png`, `comboburst-3.png`, etc.)
 
-Check out the [repository](https://github.com/crewly/comboBurst) for a more detailed explanation and template
+Check out the [repository](https://github.com/crewly/comboBurst) for a more detailed explanation and a template
 
 Mod save folder location:  
 Android: `.\Geode\save\geode\mods\crewly.comboburst\`  

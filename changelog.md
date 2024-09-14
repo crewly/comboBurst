@@ -1,3 +1,13 @@
+# v2.1.0
+ * Settings Update! Settings are categorized and sprite pack names are shown
+ * Settings button in Pause Menu
+ * Settings changes are live
+ * FLAC audio files supported
+ * Node IDs is now a dependency
+ * Adjusted Mayuri's sprite
+ * Adjusted sequential bursts
+ * MacOS support
+
 # v2.0.0
 
  * Code rewrite
