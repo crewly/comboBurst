@@ -2,6 +2,7 @@
 #include <Geode/Geode.hpp>
 #include <random>
 #include <string>
+#include <Geode/binding/PlayLayer.hpp>
 
 using namespace geode::prelude;
 
@@ -59,7 +60,10 @@ public:
 	// Number of characters loaded
 	int m_loadedCharacters = 0;
 
-	// Last percent to prevent multiple bursts at the same percent
+	// Current sprite pack ID
+	int m_spritePackID = -1;
+
+	// Last occurrence of a combo burst
 	int m_lastPercent = 0; 
 
 	// ID of the previously bursted character
@@ -96,7 +100,26 @@ public:
 
 	// Check if player is trying to use custom sprites (Sprite pack ID 0)
 	bool usingCustomSprites() {
-		return (Mod::get()->getSettingValue<int64_t>("sprite-pack") == 0);
+		return getSpritePackID() == 0;
+	}
+
+	// Get sprite pack ID
+	int getSpritePackID() {
+		if (m_spritePackID != -1) {
+			return m_spritePackID;
+		}
+
+		// Find the sprite pack ID
+		auto pack = Mod::get()->getSettingValue<std::string>("sprite-pack");
+		// The ID of the sprite packs are the same as their index in the array
+		std::array packs = {"Custom", "Anime", "Meme"};
+		for (int i = 0; i < packs.size(); i++) {
+			if (pack == packs[i]) {
+				m_spritePackID = i;
+				break;
+			}
+		}
+		return m_spritePackID;
 	}
 
 	// Get sound file
@@ -145,14 +168,14 @@ public:
 		// Return if no characteers are loaded
 		if (m_loadedCharacters == 0) return;
 
-		// Randomly select a character to burst,
-		// that has not been previously played before.
-		int characterID = selectCharacterID();
-
 		// If no animation is running
 		if (!m_actionRunning) {
 			// Set actionRunning to true
 			m_actionRunning = true;
+
+			// Randomly select a character to burst,
+			// that has not been previously played before.
+			int characterID = selectCharacterID();
 
 			// Get character by ID
 			auto character = this->getChildByID(
@@ -238,11 +261,26 @@ public:
 		}
 	}
 
+	// Unload characters
+	void unloadSprites() {
+		m_spritePackID = -1; // Reset selected sprite pack ID
+		this->removeAllChildren(); // Remove all children
+		m_spriteAudio.clear(); // Clear audio list
+		m_actionRunning = false; // Reset actionRunning flag
+		channel->stop(); // Stop audio
+		m_loadedCharacters = 0; // Reset loaded characters
+	}
+
 	// Load characters
 	void loadSprites() {
+		
+		// RESET: if sprites are already loaded, reset characters
+		if (m_loadedCharacters > 0) {
+			unloadSprites();
+		}
 
-		// Load characters until a character is not found
-		int i = 0;
+		// Get sprite pack ID
+		int spritePack = getSpritePackID();
 
 		// Set default audio for combo bursts
 		// Use custom default SFX if provided
@@ -255,9 +293,7 @@ public:
 			m_defaultAudio = defaultAudio;
 		}
 
-		// Load characters until a character is not found
-		int spritePack = Mod::get()->getSettingValue<int64_t>("sprite-pack");
-		
+		int i = 0;
 		// Load characters until a character is not found
 		while (true) {
 			std::string charName = fmt::format("char-{}", i+1);

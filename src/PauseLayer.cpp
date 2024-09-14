@@ -4,6 +4,8 @@
 using namespace geode::prelude;
 
 #include <Geode/modify/PauseLayer.hpp>
+#include <Geode/ui/GeodeUI.hpp>
+#include <Geode/ui/BasedButtonSprite.hpp>
 
 class $modify(MyPauseLayer, PauseLayer) {
 
@@ -24,12 +26,6 @@ class $modify(MyPauseLayer, PauseLayer) {
 		if (!channel) return;
 		channel->stop();
 	}
-
-	// Event listeners
-    void customSetup() {
-		PauseLayer::customSetup();
-		pause();
-	}
 	void onResume(CCObject* sender) {
 		PauseLayer::onResume(sender);
 		resume();
@@ -37,5 +33,31 @@ class $modify(MyPauseLayer, PauseLayer) {
 	void onQuit(CCObject* sender) {
 		PauseLayer::onQuit(sender);
 		stop();
+	}
+
+    void customSetup() {
+		PauseLayer::customSetup();
+		pause();
+
+		// Add settings button
+		if (!Mod::get()->getSettingValue<bool>("comboburst-settingsbtn")) return;
+		auto sprite = CircleButtonSprite::create(
+			CCSprite::create("settingsBtn.png"_spr),
+			CircleBaseColor::Green,
+			CircleBaseSize::Small
+		);
+		auto btn = CCMenuItemSpriteExtra::create(	
+			sprite,
+			this,
+			menu_selector(MyPauseLayer::onClick)
+		);
+        auto menu = this->getChildByID("right-button-menu");
+        menu->addChild(btn);
+		menu->updateLayout();
+	}
+
+	// Settings button callback
+	void onClick(CCObject* sender) {
+		openSettingsPopup(Mod::get());
 	}
 };

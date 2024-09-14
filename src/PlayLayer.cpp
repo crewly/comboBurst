@@ -6,7 +6,7 @@ using namespace geode::prelude;
 #include <Geode/modify/PlayLayer.hpp>
 
 // Modify PlayLayer
-class $modify(PlayLayer) {
+class $modify(MyPlayLayer, PlayLayer) {
 
 	// Fields
 	struct Fields {
@@ -52,9 +52,7 @@ class $modify(PlayLayer) {
 		m_fields->m_comboBurst->m_lastPercent = this->getCurrentPercentInt();
 	}
 
-	// TODO: Add MacOS support
-	#ifndef GEODE_IS_MACOS
-
+	// #ifndef GEODE_IS_MACOS
 	// Checkpoint activated (for platformer)
 	void checkpointActivated(CheckpointGameObject* p0) {
 		PlayLayer::checkpointActivated(p0);
@@ -68,6 +66,46 @@ class $modify(PlayLayer) {
 			m_fields->m_comboBurst->charBurst();
 		}
 	}
-	#endif
+	// #endif
 
 };
+
+// Reload combo burst
+void reloadComboBurst() {
+	if (auto pl = PlayLayer::get()) {
+		auto& myFields = static_cast<MyPlayLayer*>(pl)->m_fields;
+		if (myFields->m_comboBurst) {
+			myFields->m_comboBurst->loadSprites();
+		}
+	}
+}
+
+// Settings listener
+// there's gotta be a better way to do this bruh :sob:
+$execute {
+	listenForSettingChanges("sprite-pack", [](std::string value) {
+		reloadComboBurst();
+	});
+	listenForSettingChanges("popup-enable", [](bool value) {
+		if (auto pl = PlayLayer::get()) {
+			auto& myFields = static_cast<MyPlayLayer*>(pl)->m_fields;
+			if (value) { // enable
+				if (!myFields->m_comboBurst) {
+					myFields->m_comboBurst = ComboBurst::create(pl);
+				} else {
+					myFields->m_comboBurst->loadSprites();
+				}
+				myFields->m_comboBurst->m_lastPercent = pl->getCurrentPercentInt();
+			} else { // disable
+				myFields->m_comboBurst->unloadSprites();
+			}
+		}
+	});
+	listenForSettingChanges("popup-size", [](double value) {
+		reloadComboBurst();
+	});
+	listenForSettingChanges("popup-opacity", [](int64_t value) {
+		reloadComboBurst();
+	});
+
+}
