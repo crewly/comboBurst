@@ -1,11 +1,11 @@
 {
-	"geode": "3.4.0",
+	"geode": "3.6.1",
 	"gd": {
 		"win": "2.206",
 		"mac": "2.206",
 		"android": "2.206"
 	},
-	"version": "v2.0.0",
+	"version": "v2.1.0",
 	"id": "crewly.comboburst",
 	"name": "Combo Burst",
 	"developer": "crewly",
@@ -20,11 +20,22 @@
 			"resources/*.wav",
 			"resources/*.ogg",
 			"resources/*.mp3",
-			"resources/*.flic",
+			"resources/*.flac",
 			"resources/*.m4a"
 		]
 	},
+    "dependencies": [
+        {
+            "id": "geode.node-ids",
+            "version": ">=v1.13.0",
+            "importance": "required"
+        }
+    ],
 	"settings": {
+		"title-general": {
+			"type": "title",
+			"name": "General"
+		},
 		"popup-enable": {
 			"name": "Enable Combo Burst",
 			"description": "Enable or disable the combo burst animations",
@@ -39,39 +50,61 @@
 			"min": 0,
 			"max": 100,
 			"control": {
-				"slider": true
-			}
-		},
-		"sprite-pack": {
-			"name": "Sprite Pack",
-			"description": "The sprite pack to use for the pop-up animations. Check mod desc for list of sprites.",
-			"type": "int",
-			"default": 1,
-			"min": 0,
-			"max": 2,
-			"control": {
-				"slider": false
+                "input": true,
+                "slider": true,
+                "arrows": false,
+                "big-arrows": false,
+                "arrow-step": 0,
+                "big-arrow-step": 0,
+                "slider-step": 1
 			}
 		},
 		"popup-percent": {
 			"name": "Appear every %",
-			"description": "The percentage difference needed for a popup",
+			"description": "The percentage difference needed for a combo burst to appear (0-100)",
 			"type": "int",
 			"default": 30,
-			"min": 5,
+			"min": 1,
 			"max": 100,
 			"control": {
-				"slider": true
+                "input": true,
+                "slider": true,
+                "arrows": true,
+                "big-arrows": true,
+                "arrow-step": 1,
+                "big-arrow-step": 5,
+                "slider-step": 1
 			}
 		},
-		"popup-size": {
-			"name": "Size",
-			"description": "The size of the sprites",
-			"type": "float",
-			"default": 0.55,
-			"min": 0.2,
-			"max": 1
+
+		"title-visual": {
+			"type": "title",
+			"name": "Visual"
 		},
+		"sprite-pack": {
+			"name": "Sprite Pack",
+			"type": "string",
+			"description": "The sprite pack to use for the pop-up animations",
+			"default": "Anime",
+			"one-of": ["Anime", "Meme", "Custom"]
+		},
+		"popup-size": {
+            "name": "Size",
+            "description": "The size of the sprites",
+            "type": "float",
+            "default": 0.55,
+            "min": 0.2,
+            "max": 1,
+            "control": {
+                "input": true,
+                "slider": true,
+                "arrows": false,
+                "big-arrows": false,
+                "arrow-step": 0,
+                "big-arrow-step": 0,
+                "slider-step": 0.01
+            }
+        },
 		"popup-opacity": {
 			"name": "Opacity",
 			"description": "Sprite opacity (0-255)",
@@ -79,6 +112,10 @@
 			"default": 255,
 			"min": 1,
 			"max": 255
+		},
+		"title-audio": {
+			"type": "title",
+			"name": "Audio"
 		},
 		"popup-defaultsfx": {
 			"name": "Use default SFX if needed",
@@ -91,6 +128,16 @@
 			"description": "Use Geometry Dash's SFX volume slider for the mod. Overwrites the mod's volume setting.",
 			"type": "bool",
 			"default": false
+		},
+		"title-features": {
+			"type": "title",
+			"name": "Features"
+		},
+		"comboburst-settingsbtn": {
+			"name": "Show settings button",
+			"description": "Show a settings button in the Pause menu to access the mod's settings.",
+			"type": "bool",
+			"default": true
 		},
 		"popup-random": {
 			"name": "Use randomizer",
