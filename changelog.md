@@ -1,3 +1,7 @@
+# v2.1.1
+ * Switched back to main bindings branch (thanks hiimjustin000)
+ * Minor adjustments in description
+
 # v2.1.0
  * Settings Update! Settings are categorized and sprite pack names are shown
  * Settings button in Pause Menu

@@ -33,6 +33,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		return true;
 	}
 
+	// Classic GD
 	// Update progress bar
 	void updateProgressbar() {
 		PlayLayer::updateProgressbar();
@@ -52,8 +53,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 		m_fields->m_comboBurst->m_lastPercent = this->getCurrentPercentInt();
 	}
 
-	// #ifndef GEODE_IS_MACOS
-	// Checkpoint activated (for platformer)
+	// Platformer GD
+	// Checkpoint activated
 	void checkpointActivated(CheckpointGameObject* p0) {
 		PlayLayer::checkpointActivated(p0);
 		if (!m_fields->m_comboBurst) {
@@ -66,7 +67,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 			m_fields->m_comboBurst->charBurst();
 		}
 	}
-	// #endif
 
 };
 

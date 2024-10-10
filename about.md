@@ -15,7 +15,7 @@ More packs coming soon(?)
 If you want to add your own sprites, create a folder in the mod's save folder named "custom-sprite" and add your sprites there.  
 
 Each character must have two files:
-1. `comboburst-1.png` - The sprite that will be displayed.
+1. `comboburst-1.png` - The sprite that will be displayed. (.png)
 2. `comboburst-1.wav` - The sound that will be played. (.wav, .ogg, mp3, etc.)
 
 All sprites with a running number starting from 1 will be loaded.

@@ -1,16 +1,18 @@
 {
-	"geode": "3.6.1",
+	"geode": "3.8.1",
 	"gd": {
 		"win": "2.206",
 		"mac": "2.206",
 		"android": "2.206"
 	},
-	"version": "v2.1.0",
+	"version": "v2.1.1",
 	"id": "crewly.comboburst",
 	"name": "Combo Burst",
 	"developer": "crewly",
-	"description": "Have characters cheer you on as you play the level!",
-	"repository": "https://github.com/crewly/comboBurst",
+	"description": "Characters cheer you on during gameplay!",
+	"links": {
+		"source": "https://github.com/crewly/comboBurst"
+	},
 	"tags": ["customization", "gameplay", "joke"],
 	"resources": {
 		"sprites": [
@@ -112,6 +114,12 @@
 			"default": 255,
 			"min": 1,
 			"max": 255
+		},
+		"refresh-sprites": {
+			"name": "Refresh Sprites",
+			"type": "custom:refreshBtn",
+			"description": "Refresh the sprite list after adding new sprites to the resources folder.",
+			"default": 0
 		},
 		"title-audio": {
 			"type": "title",
