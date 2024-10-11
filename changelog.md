@@ -1,3 +1,6 @@
+# v2.1.2
+ * Removed unfinished setting woops haha
+
 # v2.1.1
  * Switched back to main bindings branch (thanks hiimjustin000)
  * Minor adjustments in description

@@ -5,7 +5,7 @@
 		"mac": "2.206",
 		"android": "2.206"
 	},
-	"version": "v2.1.1",
+	"version": "v2.1.2",
 	"id": "crewly.comboburst",
 	"name": "Combo Burst",
 	"developer": "crewly",
@@ -114,12 +114,6 @@
 			"default": 255,
 			"min": 1,
 			"max": 255
-		},
-		"refresh-sprites": {
-			"name": "Refresh Sprites",
-			"type": "custom:refreshBtn",
-			"description": "Refresh the sprite list after adding new sprites to the resources folder.",
-			"default": 0
 		},
 		"title-audio": {
 			"type": "title",
