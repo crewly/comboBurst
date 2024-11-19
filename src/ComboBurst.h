@@ -123,7 +123,6 @@ public:
 	}
 
 	// Get sound file
-	// (TODO: Add cyrillic support)
 	std::string getSoundFile(std::string name) {
 		std::vector<std::string> extensions = { ".ogg", ".wav", ".mp3",
 												".m4a", ".flic" };
@@ -309,7 +308,7 @@ public:
 				)) {
 					break;
 				}
-
+				log::info("File {} does exist", fileName);
 				character = CCSprite::create(
 					(getSpriteDir() / fileName).string().c_str()
 				);
@@ -369,6 +368,7 @@ public:
 		// Log the number of characters loaded
 		if (m_loadedCharacters == 0) {
 			log::warn("No characters found");
+			unloadSprites();
 		} else {
 			log::info("Loaded {} characters", m_loadedCharacters);
 		}
