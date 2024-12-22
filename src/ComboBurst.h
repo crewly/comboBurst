@@ -301,8 +301,7 @@ public:
 						PopupEffect::SlideRight
 					);
 				case PopupEffect::SlideLeft:
-				case PopupEffect::SlideRight:
-				 {
+				case PopupEffect::SlideRight: {
 					float direction = 1;
 
 					// Starting position
@@ -313,6 +312,8 @@ public:
 						case PopupEffect::SlideRight:
 							character->setPositionX(winSize.width);
 							direction = -1;
+							break;
+						default:
 							break;
 					}
 					
@@ -362,6 +363,8 @@ public:
 						case PopupEffect::FadeRight:
 							character->setPositionX(winSize.width-popupEndPos);
 							break;
+						default:
+							break;
 					}
 
 					auto fadeInEase = CCEaseExponentialOut::create(
@@ -378,6 +381,8 @@ public:
 
 					break;
 				}
+				default:
+					break;
 			}
 
 			// Run the actions
