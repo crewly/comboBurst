@@ -54,6 +54,29 @@ protected:
 
 public:
 
+	// Animation Effects
+	enum class PopupEffect {
+		SlideLeft,
+		SlideRight,
+		FadeLeft,
+		FadeRight,
+		SlideAlternate,
+		FadeAlternate
+	};
+
+	// Pop-up Effect
+	PopupEffect m_effect;
+
+	// Map of animation effects
+	std::map<std::string, PopupEffect> m_effects = {
+		{"Slide Left", PopupEffect::SlideLeft},
+		{"Slide Right", PopupEffect::SlideRight},
+		{"Slide Alternate", PopupEffect::SlideAlternate},
+		{"Fade Left", PopupEffect::FadeLeft},
+		{"Fade Right", PopupEffect::FadeRight},
+		{"Fade Alternate", PopupEffect::FadeAlternate}
+	};
+
 	// RNG-seed
 	std::mt19937 rng;
 
@@ -81,6 +104,11 @@ public:
 	// List of audio files
 	std::vector<std::string> m_spriteAudio;
 
+	// Alternating bool for alternating effects
+	bool m_popupAlternate = false;
+
+	// ** Member Functions ** //
+
 	// Create ComboBurst object
 	static ComboBurst* create(PlayLayer* layer) {
 		auto* ret = new (std::nothrow) ComboBurst;
@@ -93,12 +121,17 @@ public:
 		}
 	}
 
+	// Assign ID to m_effect
+	void setEffect(std::string effect) {
+		m_effect = m_effects[effect];
+	}
+
 	// Get player's percentage
 	int getPercent(PlayLayer* layer) {
 		return layer->getCurrentPercentInt();
 	}
 
-	// Check if player is trying to use custom sprites (Sprite pack ID 0)
+	// Check if player is trying to use custom sprites (ID = 0)
 	bool usingCustomSprites() {
 		return getSpritePackID() == 0;
 	}
@@ -163,6 +196,7 @@ public:
 		m_actionRunning = false;
 	}
 
+	// Burst character
 	void charBurst() {
 		// Return if no characteers are loaded
 		if (m_loadedCharacters == 0) return;
@@ -220,40 +254,131 @@ public:
 				// Play sound
 				system->playSound(sound, nullptr, false, &channel);
 				channel->setVolume(
-					Mod::get()->getSettingValue<int64_t>("popup-volume")/100.f
+					Mod::get()->getSettingValue<int64_t>("popup-volume") / 100.f
 				);
 			}
 
-			// Character animations //
-			// Set starting position to the left side of the screen
-			character->setPositionX(0.0f);
-			auto characterY = character->getPositionY();
+			// ** Character animations ** //
 
-			// Get player's opacity setting
-			auto opacity = Mod::get()->getSettingValue<int64_t>("popup-opacity");
+			// Get window size
+			auto winSize = CCDirector::get()->getWinSize();
 
-			// Move character to the right side of the screen while fading in
-			auto moveIn = CCMoveTo::create(1, { 75, characterY });
-			auto moveInEase = CCEaseBackOut::create(moveIn);
-			auto fadeInEase = CCEaseExponentialOut::create(
-				CCFadeTo::create(1, opacity)
-			);
+			// Get player's settings
+			auto opacity = Mod::get()->
+				getSettingValue<int64_t>("popup-opacity");
+			auto popupEndPos = Mod::get()->
+				getSettingValue<int64_t>("popup-endpos");
 
-			// Move character back to the left side of the screen while fading out
-			auto moveOut = CCMoveTo::create(1, { 65, characterY });
-			auto moveOutEase = CCEaseBackIn::create(moveOut);
-			auto fadeOut = CCFadeTo::create(0.5, 0);
+			// Calculate the final X-position of the character
+			popupEndPos = 
+				(winSize.width) * 
+				(popupEndPos/100.0f);
 
-			// Spawn the move and fade actions
-			auto spawn = CCSpawn::createWithTwoActions(moveInEase, fadeInEase);
-			auto despawn = CCSpawn::createWithTwoActions(moveOutEase, fadeOut);
 
-			// Add a callback to reset the actionRunning flag
+			// Create actions variable
+			CCSequence* actions;
+
+			// Callback Function to reset the actionRunning flag
 			auto reset = CCCallFunc::create(
 				this, callfunc_selector(ComboBurst::actionEnd)
 			);
 
-			auto actions = CCSequence::create(spawn, despawn, reset, nullptr);
+			// Function to alternate between two effects
+			auto alternateEffect = [this](PopupEffect left, PopupEffect right) {
+				m_popupAlternate = !m_popupAlternate;
+				return m_popupAlternate? left : right;
+			};
+
+			// Helper variable for the effect type
+			auto effectType = m_effect;
+
+			switch (m_effect) {
+				
+				// Slide effect
+				case PopupEffect::SlideAlternate:
+					effectType = alternateEffect(
+						PopupEffect::SlideLeft, 
+						PopupEffect::SlideRight
+					);
+				case PopupEffect::SlideLeft:
+				case PopupEffect::SlideRight:
+				 {
+					float direction = 1;
+
+					// Starting position
+					switch (effectType) {
+						case PopupEffect::SlideLeft:
+							character->setPositionX(0.0f);
+							break;
+						case PopupEffect::SlideRight:
+							character->setPositionX(winSize.width);
+							direction = -1;
+							break;
+					}
+					
+					auto startingY = character->getPositionY(); 
+					auto startingX = character->getPositionX();
+
+					// Move character towards the center while fading in
+					auto moveIn = CCMoveTo::create(
+						1, 
+						{ startingX + direction*popupEndPos, startingY }
+					);
+					auto moveInEase = CCEaseExponentialOut::create(moveIn);
+					auto fadeInEase = CCEaseExponentialOut::create(
+						CCFadeTo::create(1, opacity)
+					);
+
+					auto spawn = CCSpawn::createWithTwoActions(
+						moveInEase, 
+						fadeInEase
+					);
+					auto fadeOut = CCFadeTo::create(0.5, 0);
+
+					actions = CCSequence::create(
+						spawn, 
+						fadeOut, 
+						reset, 
+						nullptr
+					);
+
+					break;
+				}
+
+				// Fade effect
+				case PopupEffect::FadeAlternate:
+					effectType = alternateEffect(
+						PopupEffect::FadeLeft, 
+						PopupEffect::FadeRight
+					);
+				case PopupEffect::FadeLeft:
+				case PopupEffect::FadeRight: {
+
+					// Starting position
+					switch (effectType) {
+						case PopupEffect::FadeLeft:
+							character->setPositionX(popupEndPos);
+							break;
+						case PopupEffect::FadeRight:
+							character->setPositionX(winSize.width-popupEndPos);
+							break;
+					}
+
+					auto fadeInEase = CCEaseExponentialOut::create(
+						CCFadeTo::create(1, opacity)
+					);
+					auto fadeOut = CCFadeTo::create(0.5, 0);
+				
+					actions = CCSequence::create(
+						fadeInEase, 
+						fadeOut, 
+						reset, 
+						nullptr
+					);
+
+					break;
+				}
+			}
 
 			// Run the actions
 			character->runAction(actions);
@@ -277,6 +402,9 @@ public:
 		if (m_loadedCharacters > 0) {
 			unloadSprites();
 		}
+
+		// Assign animation effect
+		setEffect(Mod::get()->getSettingValue<std::string>("popup-effect"));
 
 		// Get sprite pack ID
 		int spritePack = getSpritePackID();
@@ -308,7 +436,7 @@ public:
 				)) {
 					break;
 				}
-				log::info("File {} does exist", fileName);
+				//log::info("File {} does exist", fileName);
 				character = CCSprite::create(
 					(getSpriteDir() / fileName).string().c_str()
 				);

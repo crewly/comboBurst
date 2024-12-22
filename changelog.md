@@ -1,3 +1,13 @@
+# v2.3.0 (Animation Update)
+ * Added new animation effects
+ * Added pop-up position offset
+ * Removed EaseBackOut from Slide Effect
+ * Minor adjustments to Settings descriptions
+ * For those who read changelogs: Happy holidays and happy new year! 
+
+# v2.2.0
+ * Geode v4 Migration
+
 # v2.1.2
  * Removed unfinished setting woops haha
 

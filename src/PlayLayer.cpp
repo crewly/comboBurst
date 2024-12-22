@@ -107,5 +107,13 @@ $execute {
 	listenForSettingChanges("popup-opacity", [](int64_t value) {
 		reloadComboBurst();
 	});
+	listenForSettingChanges("popup-effect", [](std::string value) {
+		if (auto pl = PlayLayer::get()) {
+			auto& myFields = static_cast<MyPlayLayer*>(pl)->m_fields;
+			if (myFields->m_comboBurst) {
+				myFields->m_comboBurst->setEffect(value);
+			}
+		}
+	});
 
 }

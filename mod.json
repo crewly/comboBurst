@@ -1,11 +1,11 @@
 {
-	"geode": "4.0.0",
+	"geode": "4.1.1",
 	"gd": {
 		"win": "2.2074",
 		"mac": "2.2074",
 		"android": "2.2074"
 	},
-	"version": "v2.2.0",
+	"version": "v2.3.0",
 	"id": "crewly.comboburst",
 	"name": "Combo Burst",
 	"developer": "crewly",
@@ -40,13 +40,13 @@
 		},
 		"popup-enable": {
 			"name": "Enable Combo Burst",
-			"description": "Enable or disable the combo burst animations",
+			"description": "Enable or disable the Combo Burst animations",
 			"type": "bool",
 			"default": true
 		},
 		"popup-volume": {
 			"name": "SFX Volume (%)",
-			"description": "Volume of the Sprite SFX",
+			"description": "Volume of the Combo Burst SFX",
 			"type": "int",
 			"default": 30,
 			"min": 0,
@@ -63,7 +63,7 @@
 		},
 		"popup-percent": {
 			"name": "Appear every %",
-			"description": "The percentage difference needed for a combo burst to appear (0-100)",
+			"description": "The percentage difference needed for a Combo Burst to appear (0%-100%)",
 			"type": "int",
 			"default": 30,
 			"min": 1,
@@ -90,9 +90,40 @@
 			"default": "Anime",
 			"one-of": ["Anime", "Meme", "Custom"]
 		},
+		"popup-effect": {
+			"name": "Popup Animation",
+			"description": "The animation effect used for the Combo Burst",
+			"type": "string",
+			"default": "Slide Left",
+			"one-of": [
+				"Slide Left", 
+				"Slide Right", 
+				"Slide Alternate",
+				"Fade Left", 
+				"Fade Right",
+				"Fade Alternate"
+			]
+		},
+		"popup-endpos": {
+			"name": "Popup Offset (%)",
+			"description": "The final horizontal position of the pop-up relative to the side of the screen. (10%-90%)\n\n<cy>Value of 50% will center the pop-up.</c>",
+			"type": "int",
+			"default": 15,
+			"min": 10,
+			"max": 90,
+			"control": {
+				"input": true,
+				"slider": true,
+				"arrows": true,
+				"big-arrows": true,
+				"arrow-step": 1,
+				"big-arrow-step": 5,
+				"slider-step": 1
+			}
+		},
 		"popup-size": {
             "name": "Size",
-            "description": "The size of the sprites",
+            "description": "The size of the sprites (0.2x-1.0x)",
             "type": "float",
             "default": 0.55,
             "min": 0.2,
@@ -109,7 +140,7 @@
         },
 		"popup-opacity": {
 			"name": "Opacity",
-			"description": "Sprite opacity (0-255)",
+			"description": "Transparency of the sprites (0-255)",
 			"type": "int",
 			"default": 255,
 			"min": 1,
@@ -136,26 +167,26 @@
 			"name": "Features"
 		},
 		"comboburst-settingsbtn": {
-			"name": "Show settings button",
+			"name": "Show Settings Button",
 			"description": "Show a settings button in the Pause menu to access the mod's settings.",
 			"type": "bool",
 			"default": true
 		},
 		"popup-random": {
-			"name": "Use randomizer",
+			"name": "Use Randomizer",
 			"description": "Characters will be randomly picked. If disabled, characters will be shown sequentially.",
 			"type": "bool",
 			"default": true
 		},
 		"popup-platformer": {
 			"name": "Show in Platformer",
-			"description": "Show combo burst animations after every checkpoint in platformer mode. (MacOS not supported)",
+			"description": "Show Combo Burst animations after every checkpoint in platformer mode.",
 			"type": "bool",
 			"default": true
 		},
 		"popup-practice": {
 			"name": "Show in Practice Mode",
-			"description": "Show combo burst animations in practice mode.",
+			"description": "Show Combo Burst animations in practice mode.",
 			"type": "bool",
 			"default": true
 		}
