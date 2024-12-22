@@ -1,3 +1,8 @@
+# v2.3.1 (Hotfix)
+ * Game doesn't crash anymore when sprites aren't loaded properly
+ * A notification will be shown when sprites fail to load.
+ * Minor code adjustments
+
 # v2.3.0 (Animation Update)
  * Added new animation effects
  * Added pop-up position offset

@@ -3,6 +3,7 @@
 #include <random>
 #include <string>
 #include <Geode/binding/PlayLayer.hpp>
+#include <Geode/ui/Notification.hpp>
 
 using namespace geode::prelude;
 
@@ -45,9 +46,6 @@ protected:
 
 		// Load sprites
 		loadSprites();
-		if (m_loadedCharacters == 0) {
-			return false;
-		}
 
 		return true;
 	}
@@ -157,8 +155,10 @@ public:
 
 	// Get sound file
 	std::string getSoundFile(std::string name) {
-		std::vector<std::string> extensions = { ".ogg", ".wav", ".mp3",
-												".m4a", ".flic" };
+		std::vector<std::string> extensions = { 
+			".ogg", ".wav", ".mp3",
+			".m4a", ".flic" 
+		};
 		for (auto& ext : extensions) {
 			auto file = fmt::format("{}{}", name, ext);
 			if (std::filesystem::exists((getSpriteDir() / file))) {
@@ -199,7 +199,7 @@ public:
 	// Burst character
 	void charBurst() {
 		// Return if no characteers are loaded
-		if (m_loadedCharacters == 0) return;
+		if (m_loadedCharacters <= 0) return;
 
 		// If no animation is running
 		if (!m_actionRunning) {
@@ -426,6 +426,7 @@ public:
 		}
 
 		int i = 0;
+
 		// Load characters until a character is not found
 		while (true) {
 			std::string charName = fmt::format("char-{}", i+1);
@@ -435,16 +436,14 @@ public:
 			if (usingCustomSprites()) {
 				fileName = fmt::format("comboburst-{}.png", i+1);
 
-				// Break if file is not found
-				if (!std::filesystem::exists(
-					(getSpriteDir() / fileName)
-				)) {
+				// Check for file's existence
+				if (std::filesystem::exists((getSpriteDir() / fileName))) {
+					character = CCSprite::create(
+						(getSpriteDir() / fileName).string().c_str()
+					);
+				} else {
 					break;
 				}
-				//log::info("File {} does exist", fileName);
-				character = CCSprite::create(
-					(getSpriteDir() / fileName).string().c_str()
-				);
 			} 
 			
 			// Load sprites from the sprite pack
@@ -452,15 +451,13 @@ public:
 				fileName = fmt::format("comboburst-{}_{}.png", spritePack, i+1);
 
 				// Break if file is not found
-				if (!std::filesystem::exists(
-					Mod::get()->getResourcesDir() / fileName
-				)) {
+				if (std::filesystem::exists(Mod::get()->getResourcesDir() / fileName)) {
+					character = CCSprite::create(
+						fmt::format("{}"_spr, fileName).c_str()
+					);
+				} else {
 					break;
 				}
-
-				character = CCSprite::create(
-					fmt::format("{}"_spr, fileName).c_str()
-				);
 			}
 
 			character->setID(
@@ -501,6 +498,12 @@ public:
 		// Log the number of characters loaded
 		if (m_loadedCharacters == 0) {
 			log::warn("No characters found");
+			auto notify = geode::Notification::create(
+				"Combo Burst: No characters found, check the custom sprite folder",
+				NotificationIcon::Error,
+				2
+			);
+			notify->show();
 			unloadSprites();
 		} else {
 			log::info("Loaded {} characters", m_loadedCharacters);
