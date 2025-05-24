@@ -1,5 +1,6 @@
 # v2.3.2 (Patch)
  * iOS support (though untested)
+ * Temporarily removed platformer checkpoint checks for 32-bit Android devices
 
 # v2.3.1 (Patch)
  * Game doesn't crash anymore when sprites aren't loaded properly
