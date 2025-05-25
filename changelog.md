@@ -1,6 +1,3 @@
-# v2.3.3 (Patch)
- * typo in code
-
 # v2.3.2 (Patch)
  * iOS support (though untested)
  * Temporarily removed platformer checkpoint checks for 32-bit Android devices

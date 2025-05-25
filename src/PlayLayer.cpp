@@ -55,7 +55,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 
 	// Platformer GD
 	// Checkpoint activated
-	#ifdef GEODE_IS_ANDROID32 // temporarily disabled for android32
+	#ifndef GEODE_IS_ANDROID32 // temporarily disabled for android32
 	void checkpointActivated(CheckpointGameObject* p0) {
 		PlayLayer::checkpointActivated(p0);
 		if (!m_fields->m_comboBurst) {
