@@ -2,6 +2,7 @@
 #include <Geode/Geode.hpp>
 #include <random>
 #include <string>
+#include <Geode/ui/LazySprite.hpp>
 #include <Geode/binding/PlayLayer.hpp>
 #include <Geode/ui/Notification.hpp>
 
@@ -125,8 +126,17 @@ public:
 	}
 
 	// Get player's percentage
-	int getPercent(PlayLayer* layer) {
-		return layer->getCurrentPercentInt();
+	int getPercent(PlayLayer* pl) {
+		return pl->getCurrentPercentInt();
+	}
+
+	void updateLastPercent(PlayLayer* pl) {
+		auto percent = getPercent(pl);
+		if (Mod::get()->getSettingValue<bool>("popup-consistency")) {
+			m_lastPercent = percent - (percent % Mod::get()->getSettingValue<int64_t>("popup-percent"));
+		} else {
+			m_lastPercent = percent;
+		}
 	}
 
 	// Check if player is trying to use custom sprites (ID = 0)
@@ -431,33 +441,45 @@ public:
 		while (true) {
 			std::string charName = fmt::format("char-{}", i+1);
 			std::string fileName;
-			CCSprite* character;
+			std::filesystem::path filePath;
+			bool found = false;
+			CCSize nodeSize{64.f, 64.f};
+			auto character = LazySprite::create(nodeSize);
+			character->setAutoResize(true);
+
 			// Load custom sprites if enabled
 			if (usingCustomSprites()) {
-				fileName = fmt::format("comboburst-{}.png", i+1);
-
-				// Check for file's existence
-				if (std::filesystem::exists((getSpriteDir() / fileName))) {
-					character = CCSprite::create(
-						(getSpriteDir() / fileName).string().c_str()
-					);
-				} else {
-					break;
+				std::vector<std::string> imgExtensions = {
+					".png", ".jpg", ".jpeg",
+					".qoi", ".gif", ".webp", ".jxl"
+				};
+				for (const auto& ext : imgExtensions) {
+					fileName = fmt::format("comboburst-{}{}", i+1, ext);
+					filePath = getSpriteDir() / fileName;
+					if (std::filesystem::exists(filePath)) {
+						found = true;
+						fileName = filePath.string();
+						break;
+					}
 				}
-			} 
-			
+			}
 			// Load sprites from the sprite pack
 			else {
 				fileName = fmt::format("comboburst-{}_{}.png", spritePack, i+1);
-
-				// Break if file is not found
-				if (std::filesystem::exists(Mod::get()->getResourcesDir() / fileName)) {
-					character = CCSprite::create(
-						fmt::format("{}"_spr, fileName).c_str()
-					);
-				} else {
-					break;
+				filePath = Mod::get()->getResourcesDir() / fileName;
+				if (std::filesystem::exists(filePath)) {
+					found = true;
+					fileName = fmt::format("{}"_spr, fileName);
 				}
+			}
+
+			if (found) {
+				character->initWithFile(fileName.c_str());
+				// character->loadFromFile(fileName)
+				// TODO: actually use LazySprites for their purpose;
+				// i have no idea how to properly implement them.
+			} else {
+				break;
 			}
 
 			character->setID(
@@ -520,14 +542,13 @@ public:
 		}
 
 		// Check if practice mode is enabled and the setting is disabled
-		else if (layer->m_isPracticeMode) {
+		if (layer->m_isPracticeMode) {
 			if (!(Mod::get()->getSettingValue<bool>("popup-practice"))) {
 				return;
 			}
 		}
 
 		auto percent = getPercent(layer);
-		// Check if percent is equal to the setting value
 		auto delta = percent - m_lastPercent;
 		if (delta == Mod::get()->getSettingValue<int64_t>("popup-percent") &&
 			percent <= 100) {

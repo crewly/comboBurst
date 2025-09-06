@@ -11,9 +11,9 @@ On Android, the sprite folder is in `Geode/save/geode/mods/crewly.comboburst/cus
 
 ### Filename Syntax
 
-Each character needs to have two files:
+Each character should have two files:
 1. `comboburst-1.png` - The sprite that will be displayed. (required)  
-(Supported Images Files: .png)
+(Supported Images Files: .png, .jpg, .jpeg, .qoi, .gif, .webp, .jxl)
 2. `comboburst-1.wav` - The sound that will be played. (optional; but recommended)  
 (Supported Audio Files: .ogg, .wav, .mp3, .m4a, .flac)  
   

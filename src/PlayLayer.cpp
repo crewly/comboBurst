@@ -50,7 +50,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (!m_fields->m_comboBurst) {
 			return;
 		}
-		m_fields->m_comboBurst->m_lastPercent = this->getCurrentPercentInt();
+		m_fields->m_comboBurst->updateLastPercent(this);
 	}
 
 	// Platformer GD
@@ -97,7 +97,7 @@ $execute {
 				} else {
 					myFields->m_comboBurst->loadSprites();
 				}
-				myFields->m_comboBurst->m_lastPercent = pl->getCurrentPercentInt();
+				myFields->m_comboBurst->updateLastPercent(pl);
 			} else { // disable
 				myFields->m_comboBurst->unloadSprites();
 			}
