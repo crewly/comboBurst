@@ -1,3 +1,6 @@
+# v2.3.4
+ * Added a button that opens the custom sprites folder (thanks ery)
+
 # v2.3.3 
  * Added an option for calculating percentage difference from 0%. ("Consistent Popups")
  * Added support for other image formats, meaning that you may use ImagePlus to add gifs, webps, jxl, and qoi images.

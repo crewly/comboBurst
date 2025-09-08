@@ -1,5 +1,5 @@
 #include <Geode/Geode.hpp>
-#include "ComboBurst.h"
+#include "ComboBurst.hpp"
 
 using namespace geode::prelude;
 

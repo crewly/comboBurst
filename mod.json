@@ -6,7 +6,7 @@
 		"android": "2.2074",
 		"ios": "2.2074"
 	},
-	"version": "v2.3.3",
+	"version": "v2.3.4",
 	"id": "crewly.comboburst",
 	"name": "Combo Burst",
 	"developer": "crewly",
@@ -89,6 +89,10 @@
 			"description": "The sprite pack to use for the pop-up animations",
 			"default": "Anime",
 			"one-of": ["Anime", "Meme", "Custom"]
+		},
+		"sprite-folder": {
+			"type": "custom:sprite-folder",
+			"name": "Custom Sprites Folder"
 		},
 		"popup-effect": {
 			"name": "Popup Animation",
