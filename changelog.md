@@ -1,3 +1,6 @@
+# v2.4.0
+ * Geode 5.0.0 support
+
 # v2.3.4
  * Added a button that opens the custom sprites folder (thanks ery)
 

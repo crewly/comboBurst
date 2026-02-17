@@ -83,12 +83,11 @@ void reloadComboBurst() {
 }
 
 // Settings listener
-// there's gotta be a better way to do this bruh :sob:
 $execute {
-	listenForSettingChanges("sprite-pack", [](std::string value) {
+	listenForSettingChanges<std::string>("sprite-pack", [](std::string value) {
 		reloadComboBurst();
 	});
-	listenForSettingChanges("popup-enable", [](bool value) {
+	listenForSettingChanges<bool>("popup-enable", [](bool value) {
 		if (auto pl = PlayLayer::get()) {
 			auto& myFields = static_cast<MyPlayLayer*>(pl)->m_fields;
 			if (value) { // enable
@@ -103,13 +102,13 @@ $execute {
 			}
 		}
 	});
-	listenForSettingChanges("popup-size", [](double value) {
+	listenForSettingChanges<double>("popup-size", [](double value) {
 		reloadComboBurst();
 	});
-	listenForSettingChanges("popup-opacity", [](int64_t value) {
+	listenForSettingChanges<int64_t>("popup-opacity", [](int64_t value) {
 		reloadComboBurst();
 	});
-	listenForSettingChanges("popup-effect", [](std::string value) {
+	listenForSettingChanges<std::string>("popup-effect", [](std::string value) {
 		if (auto pl = PlayLayer::get()) {
 			auto& myFields = static_cast<MyPlayLayer*>(pl)->m_fields;
 			if (myFields->m_comboBurst) {
