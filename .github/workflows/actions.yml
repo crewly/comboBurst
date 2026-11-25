@@ -13,7 +13,10 @@ jobs:
       matrix:
         config:
         - target: win
-        - target: mac
+        # universal "mac" builds fail to link with osxcross;
+        # build each arch separately and let merge combine them
+        - target: macm1
+        - target: macintel
         - target: ios
         - target: android32
         - target: android64
@@ -27,8 +30,6 @@ jobs:
       - uses: geode-sdk/build-geode-mod-docker@v1
         with:
           target: ${{ matrix.config.target }}
-          # osxcross' lipo can't merge LTO bitcode for universal mac builds
-          use-lto: ${{ matrix.config.target != 'mac' }}
           upload: true
 
   merge:
