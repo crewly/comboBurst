@@ -27,6 +27,8 @@ jobs:
       - uses: geode-sdk/build-geode-mod-docker@v1
         with:
           target: ${{ matrix.config.target }}
+          # osxcross' lipo can't merge LTO bitcode for universal mac builds
+          use-lto: ${{ matrix.config.target != 'mac' }}
           upload: true
 
   merge:
