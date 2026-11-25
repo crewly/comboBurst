@@ -60,17 +60,19 @@ public:
 class MyButtonSettingNodeV3 : public SettingNodeV3 {
 protected:
     CCSprite* m_buttonSprite;
-    CCMenuItemSpriteExtra* m_button;
+    Button* m_button;
 
     bool init(std::shared_ptr<MyButtonSettingV3> setting, float width) {
         if (!SettingNodeV3::init(setting, width))
             return false;
     
-        // We just create the button and add it to the setting's menu
+        // We just create the button and add it to the setting's menu.
+        // The button menu is a plain CCNode in Geode v6, so a
+        // CCMenuItemSpriteExtra wouldn't receive touches; use geode::Button
 		m_buttonSprite = CCSprite::createWithSpriteFrameName("folderIcon_001.png");
         m_buttonSprite->setScale(0.75f);
-		m_button = CCMenuItemSpriteExtra::create(
-            m_buttonSprite, this, menu_selector(MyButtonSettingNodeV3::onButton)
+		m_button = Button::createWithNode(
+            m_buttonSprite, [this](auto) { this->onButton(nullptr); }
         );
         this->getButtonMenu()->addChildAtPosition(m_button, Anchor::Center);
         this->getButtonMenu()->setContentWidth(60);
@@ -96,17 +98,15 @@ protected:
     }
     void onButton(CCObject*) {
 		auto path = getSpriteDir();
-		if (!std::filesystem::exists(path)) {
-			try {
-				std::filesystem::create_directory(path);
-			} catch (std::filesystem::filesystem_error& e) {
+		if (!path.exists()) {
+			if (auto res = asp::fs::createDirAll(path); !res) {
 				log::error("Couldn't create custom sprite directory:"
-							"{}", e.what());
+							"{}", res.unwrapErr());
 			}
 		}
-		file::openFolder(
-			path
-		);
+		if (!file::openFolder(path)) {
+			log::error("Couldn't open custom sprite directory: {}", path.string());
+		}
     }
 
     // Both of these can just be no-ops, since they make no sense for our 

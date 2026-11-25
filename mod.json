@@ -1,12 +1,12 @@
 {
-	"geode": "5.0.0-beta.2",
+	"geode": "6.0.0",
 	"gd": {
-		"win": "2.2081",
-		"mac": "2.2081",
-		"android": "2.2081",
-		"ios": "2.2081"
+		"win": "2.2091",
+		"mac": "2.2091",
+		"android": "2.2091",
+		"ios": "2.2091"
 	},
-	"version": "v2.4.0",
+	"version": "v2.5.0",
 	"id": "crewly.comboburst",
 	"name": "Combo Burst",
 	"developer": "crewly",
@@ -28,10 +28,8 @@
 		]
 	},
     "dependencies": {
-        "geode.node-ids": {
-        	"version": ">=v1.8.1",
-         	"importance": "required"
-		}
+        "geode.node-ids": ">=v1.20.0",
+		"prevter.imageplus": ">=v1.2.2"
 	},
 	"settings": {
 		"title-general": {

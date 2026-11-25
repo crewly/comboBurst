@@ -8,7 +8,7 @@ else()
 endif()
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
-project(comboBurst VERSION 2.3.4)
+project(comboBurst VERSION 2.5.0)
 
 file(GLOB_RECURSE SOURCES src/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${SOURCES})

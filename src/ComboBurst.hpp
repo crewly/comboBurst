@@ -5,27 +5,24 @@
 #include <Geode/ui/LazySprite.hpp>
 #include <Geode/binding/PlayLayer.hpp>
 #include <Geode/ui/Notification.hpp>
+#include <asp/fs/fs.hpp>
 
 using namespace geode::prelude;
 
 // Prerequisites //
 
 // Find save directory
-inline std::filesystem::path getSpriteDir() {
-	auto ghcPath = (Mod::get()->getSaveDir() / "custom-sprite");
-	std::filesystem::path path = ghcPath.u8string();
-	return path;
+inline asp::fs::Path getSpriteDir() {
+	return (Mod::get()->getSaveDir() / "custom-sprite");
 }
 
 // Create Custom Sprite directory if it doesn't exist
 $on_mod(Loaded) {
 	auto path = getSpriteDir();
-	if (!std::filesystem::exists(path)) {
-		try {
-			std::filesystem::create_directory(path);
-		} catch (std::filesystem::filesystem_error& e) {
+	if (!path.exists()) {
+		if (auto res = asp::fs::createDirAll(path); !res) {
 			log::error("Couldn't create custom sprite directory:"
-						"{}", e.what());
+						"{}", res.unwrapErr());
 		}
 	}
 }
@@ -98,7 +95,7 @@ public:
 	std::string m_defaultAudio = "";
 
 	// Directory of the Sprites
-	std::filesystem::path m_spriteDir; 
+	asp::fs::Path m_spriteDir; 
 	
 	// List of audio files
 	std::vector<std::string> m_spriteAudio;
@@ -171,7 +168,7 @@ public:
 		};
 		for (auto& ext : extensions) {
 			auto file = fmt::format("{}{}", name, ext);
-			if (std::filesystem::exists((getSpriteDir() / file))) {
+			if ((getSpriteDir() / file).exists()) {
 				auto path = (getSpriteDir() / file);
 				return path.string();
 			}
@@ -234,38 +231,46 @@ public:
 				sfx = m_defaultAudio;
 			}
 
-			// Play sound effect in GD
-			if (Mod::get()->getSettingValue<bool>("popup-sfxslider")) {
-				fae->playEffect(sfx);
-			}
-			// Play sound effect using FMOD
-			else {
+			// Play sound effect using FMOD on our own channel.
+			// fae->playEffect is not used because GD saves its effect channels
+			// in checkpoints and replays them when respawning in platformer.
+			{
 				auto system = fae->m_system;
-				FMOD::Sound* sound;
-				
-                auto sfxPath = Mod::get()->getResourcesDir().parent_path() / sfx;
+				FMOD::Sound* sound = nullptr;
+				FMOD_RESULT result;
+
+                auto sfxPath = Mod::get()->getResourcesDir().parent().value() / sfx;
 
 				// Create sound object
 				// Use custom sprites if enabled
 				if (usingCustomSprites() && sfx != defaultAudio) {
-					system->createSound(sfx.c_str(), 
-										FMOD_DEFAULT, 
+					result = system->createSound(sfx.c_str(),
+										FMOD_DEFAULT,
 										nullptr,
 										&sound);
 
 				// Otherwise use the default SFX
 				} else {
-					system->createSound(sfxPath.string().c_str(),
+					result = system->createSound(sfxPath.string().c_str(),
 										FMOD_DEFAULT,
 										nullptr,
 										&sound);
 				}
 
-				// Play sound
-				system->playSound(sound, nullptr, false, &channel);
-				channel->setVolume(
-					Mod::get()->getSettingValue<int64_t>("popup-volume") / 100.f
-				);
+				// Play sound; skip it if the file is missing or broken
+				if (result != FMOD_OK || !sound) {
+					log::warn("Couldn't load sound {} (FMOD error {})", sfx, (int)result);
+				} else if (system->playSound(sound, nullptr, false, &channel) != FMOD_OK) {
+					log::warn("Couldn't play sound {}", sfx);
+				}
+				// Use GD's SFX volume if enabled, otherwise the mod's volume
+				else if (Mod::get()->getSettingValue<bool>("popup-sfxslider")) {
+					channel->setVolume(fae->m_sfxVolume);
+				} else {
+					channel->setVolume(
+						Mod::get()->getSettingValue<int64_t>("popup-volume") / 100.f
+					);
+				}
 			}
 
 			// ** Character animations ** //
@@ -441,10 +446,10 @@ public:
 		while (true) {
 			std::string charName = fmt::format("char-{}", i+1);
 			std::string fileName;
-			std::filesystem::path filePath;
+			asp::fs::Path filePath;
 			bool found = false;
 			CCSize nodeSize{64.f, 64.f};
-			auto character = LazySprite::create(nodeSize);
+			auto character = LazySprite::create(nodeSize, false);
 			character->setAutoResize(true);
 
 			// Load custom sprites if enabled
@@ -456,7 +461,7 @@ public:
 				for (const auto& ext : imgExtensions) {
 					fileName = fmt::format("comboburst-{}{}", i+1, ext);
 					filePath = getSpriteDir() / fileName;
-					if (std::filesystem::exists(filePath)) {
+					if (filePath.exists()) {
 						found = true;
 						fileName = filePath.string();
 						break;
@@ -467,14 +472,18 @@ public:
 			else {
 				fileName = fmt::format("comboburst-{}_{}.png", spritePack, i+1);
 				filePath = Mod::get()->getResourcesDir() / fileName;
-				if (std::filesystem::exists(filePath)) {
+				if (filePath.exists()) {
 					found = true;
 					fileName = fmt::format("{}"_spr, fileName);
 				}
 			}
 
 			if (found) {
-				character->initWithFile(fileName.c_str());
+				// Stop at images that fail to load (e.g. broken files)
+				if (!character->initWithFile(fileName.c_str())) {
+					log::warn("Couldn't load sprite {}", fileName);
+					break;
+				}
 				// character->loadFromFile(fileName)
 				// TODO: actually use LazySprites for their purpose;
 				// i have no idea how to properly implement them.
@@ -528,7 +537,7 @@ public:
 			notify->show();
 			unloadSprites();
 		} else {
-			log::info("Loaded {} characters", m_loadedCharacters);
+			log::debug("Loaded {} characters", m_loadedCharacters);
 		}
 	}
 

@@ -18,8 +18,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 	};
 
 	// Initialize combo burst
-	bool init(GJGameLevel* level, bool useReplay, bool setupObjects) {
-		if (!PlayLayer::init(level, useReplay, setupObjects)) {
+	bool init(GJGameLevel* level, bool dontCreateObjects) {
+		if (!PlayLayer::init(level, dontCreateObjects)) {
 			return false;
 		}
 

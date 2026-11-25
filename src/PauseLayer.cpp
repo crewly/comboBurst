@@ -51,7 +51,8 @@ class $modify(MyPauseLayer, PauseLayer) {
 			this,
 			menu_selector(MyPauseLayer::onClick)
 		);
-        auto menu = this->getChildByID("right-button-menu");
+        auto menu = this->getChildByIDRecursive("right-button-menu");
+		if (!menu) return;
         menu->addChild(btn);
 		menu->updateLayout();
 	}

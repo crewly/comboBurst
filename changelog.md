@@ -1,3 +1,8 @@
+# v2.5.0
+ * Geode 6.0.0 and GD 2.2091 support
+ * ImagePlus is now a required dependency
+ * Fixed the custom sprites folder button not doing anything
+
 # v2.4.0
  * Geode 5.0.0 support
 
